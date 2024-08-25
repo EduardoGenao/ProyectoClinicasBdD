@@ -74,7 +74,7 @@ public class ListMed extends JDialog {
 							btnElim.setEnabled(true);
 							btnModi.setEnabled(true);
 							btnSeleccionar.setEnabled(true);
-							selected = Clinica.getInstance().buscarMedico(Tabla.getValueAt(ind,1).toString());
+							selected = Clinica.getInstance().buscarMedico(Tabla.getValueAt(ind,2).toString());
 							//String cedula = Tabla.getValueAt(ind, 0).toString();
 							//selected = Clinica.getInstance().buscarMedico(cedula);
 							
@@ -188,3 +188,4 @@ public class ListMed extends JDialog {
 	}
 
 }
+

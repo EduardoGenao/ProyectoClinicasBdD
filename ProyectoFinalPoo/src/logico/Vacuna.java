@@ -10,17 +10,15 @@ public class Vacuna implements Serializable{
 	 */
 	private String id_vacuna;
 	private String nombre;
-	private String  descrip;
-	private int antMiligramos;
-	private Date fechaRecibida;
+	private String descrip;
+	private Enfermedad enfermedad;
 	
-	public Vacuna(String id_vacuna, String nombre, String descrip, int antMiligramos) {
+	public Vacuna(String id_vacuna, String nombre, String descrip,  Enfermedad enfermedad) {
 		super();
 		this.id_vacuna = id_vacuna;
 		this.nombre = nombre;
 		this.descrip = descrip;
-		this.antMiligramos = antMiligramos;
-		fechaRecibida =  new Date();
+		this.enfermedad = enfermedad;
 	}
 	
 	public String getId_vacuna() {
@@ -41,18 +39,16 @@ public class Vacuna implements Serializable{
 	public void setDescrip(String descrip) {
 		this.descrip = descrip;
 	}
-	public int getAntMiligramos() {
-		return antMiligramos;
+
+	public Enfermedad getEnfermedad() {
+		return enfermedad;
 	}
-	public void setAntMiligramos(int antMiligramos) {
-		this.antMiligramos = antMiligramos;
+
+	public void setEnfermedad(Enfermedad enfermedad) {
+		this.enfermedad = enfermedad;
 	}
-	public Date getFechaRecibida() {
-		return fechaRecibida;
-	}
-	public void setFechaRecibida(Date fechaRecibida) {
-		this.fechaRecibida = fechaRecibida;
-	}
+	
+	
 	
 	
 	

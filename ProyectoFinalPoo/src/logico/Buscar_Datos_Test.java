@@ -261,30 +261,40 @@ public class Buscar_Datos_Test {
     }
 	
 	public static ArrayList<Vacuna> fetchVacunas() {
-        ArrayList<Vacuna> vacunas = new ArrayList<>();
-        String selectSql = "SELECT * FROM Vacuna";
+	    ArrayList<Vacuna> vacunas = new ArrayList<>();
+	    String selectSql = "SELECT v.id_vacuna, v.nombre, v.descrip, e.id_enfermedad, e.nombre AS enfermedad_nombre, e.descripcion AS enfermedad_descripcion, e.permanente " +
+	                       "FROM Vacuna v " +
+	                       "JOIN Enfermedad e ON v.id_enfermedad = e.id_enfermedad";  // Assuming there is a foreign key in Vacuna pointing to Enfermedad
 
-        try (Connection connection = DriverManager.getConnection(connectionUrl);
-             PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+	    try (Connection connection = DriverManager.getConnection(connectionUrl);
+	         PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
+	         ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (resultSet.next()) {
-                // Extract data from the ResultSet
-                String idVacuna = resultSet.getString("id_vacuna");
-                String nombre = resultSet.getString("nombre");
-                String descripcion = resultSet.getString("descrip");
-                int antMiligramos = resultSet.getInt("antMiligramos");
+	        while (resultSet.next()) {
+	            // Extract Vacuna data from the ResultSet
+	            String idVacuna = resultSet.getString("id_vacuna");
+	            String nombreVacuna = resultSet.getString("nombre");
+	            String descripcionVacuna = resultSet.getString("descrip");
 
-                // Create a new Vacuna object and add it to the list
-                Vacuna vacuna = new Vacuna(idVacuna, nombre, descripcion, antMiligramos);
-                vacunas.add(vacuna);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+	            // Extract Enfermedad data from the ResultSet
+	            String idEnfermedad = resultSet.getString("id_enfermedad");
+	            String nombreEnfermedad = resultSet.getString("enfermedad_nombre");
+	            String descripcionEnfermedad = resultSet.getString("enfermedad_descripcion");
+	            boolean permanente = resultSet.getBoolean("permanente");
 
-        return vacunas;
-    }
+	            // Create an Enfermedad object
+	            Enfermedad enfermedad = new Enfermedad(idEnfermedad, nombreEnfermedad, descripcionEnfermedad, permanente);
+
+	            // Create a new Vacuna object with the Enfermedad object and add it to the list
+	            Vacuna vacuna = new Vacuna(idVacuna, nombreVacuna, descripcionVacuna, enfermedad);
+	            vacunas.add(vacuna);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return vacunas;
+	}
 	
 	 public static ArrayList<Secretario> fetchSecretarios() {
 	        ArrayList<Secretario> secretarios = new ArrayList<>();
@@ -558,7 +568,7 @@ public class Buscar_Datos_Test {
 	        // Database connection details
 
 	        // SQL Insert statement
-	        String sql = "INSERT INTO consulta (descripcion, fecha_consulta, tratamiento, asistencia, id_enfermedad, id_vacuna_dosis, id_medico, id_secretario, id_paciente) " +
+	        String sql = "INSERT INTO consulta (descripcion, fecha_consulta, tratamiento, asistencia, id_enfermedad, vacuna_dosis, id_medico, id_secretario, id_paciente) " +
 	                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	        
 
@@ -589,6 +599,10 @@ public class Buscar_Datos_Test {
 	}
 
 	
+	
+	
+	
+
 	
 	
 	

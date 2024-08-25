@@ -12,8 +12,9 @@ public class Vacuna_Dosis implements Serializable{
 	private int vacuna_dosis_id;
 	private int cant_miligramos;
 	private Vacuna vacuna;
-	private Consulta consulta;
-	public Vacuna_Dosis(int vacuna_dosis_id, int cant_miligramos, Vacuna vacuna, Consulta consulta) {
+	private String consulta;
+	
+	public Vacuna_Dosis(int vacuna_dosis_id, int cant_miligramos, Vacuna vacuna, String consulta) {
 		super();
 		this.vacuna_dosis_id = vacuna_dosis_id;
 		this.cant_miligramos = cant_miligramos;
@@ -32,10 +33,10 @@ public class Vacuna_Dosis implements Serializable{
 	public void setVacuna(Vacuna vacuna) {
 		this.vacuna = vacuna;
 	}
-	public Consulta getConsulta() {
+	public String getConsulta() {
 		return consulta;
 	}
-	public void setConsulta(Consulta consulta) {
+	public void setConsulta(String consulta) {
 		this.consulta = consulta;
 	}
 	public int getVacuna_dosis_id() {

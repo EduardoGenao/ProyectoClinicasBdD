@@ -21,6 +21,10 @@ import logico.Vacuna_Dosis;
 import sun.util.locale.provider.AuxLocaleProviderAdapter;
 
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -36,6 +40,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import java.awt.CardLayout;
 
 public class RegConsulta extends JDialog {
 
@@ -45,11 +50,21 @@ public class RegConsulta extends JDialog {
 	private JTextField txtCedMedico;
 	private JTextField txtDiagnostico;
 	JSpinner spnFecha;
-	private JTextField txtVacuna;
+	private JTextField txtVacunaDosis;
 	private JTextArea txtDescripcion;
 	private JTextArea txtTratamiento;
 	private JTextField txtSecretario;
 	private JComboBox cbxAsistencia;
+	JButton btnRegistrar;
+	JButton btnCancelar1;
+	private static final String connectionUrl =
+            "jdbc:sqlserver://192.168.100.118:1433;"
+            + "database=clinica_stanley_eduardo;"
+            + "user=s.gomez;" // Your username
+            + "password=Headphone1130Jack;" // Your password
+            + "encrypt=true;"
+            + "trustServerCertificate=true;"
+            + "loginTimeout=30;";
 	
 	/**
 	 * Launch the application.
@@ -141,11 +156,11 @@ public class RegConsulta extends JDialog {
 			lblTratamiento.setBounds(10, 439, 161, 14);
 			panel.add(lblTratamiento);
 			
-			txtVacuna = new JTextField();
-			txtVacuna.setEditable(false);
-			txtVacuna.setColumns(10);
-			txtVacuna.setBounds(364, 383, 138, 20);
-			panel.add(txtVacuna);
+			txtVacunaDosis = new JTextField();
+			txtVacunaDosis.setEditable(false);
+			txtVacunaDosis.setColumns(10);
+			txtVacunaDosis.setBounds(364, 383, 138, 20);
+			panel.add(txtVacunaDosis);
 			
 			JLabel lblVacuna = new JLabel("Vacuna:");
 			lblVacuna.setBounds(364, 356, 161, 14);
@@ -184,21 +199,22 @@ public class RegConsulta extends JDialog {
 			btnBuscMedico.setBounds(177, 174, 138, 23);
 			panel.add(btnBuscMedico);
 			
-			JButton btnNewButton = new JButton("Buscar Vacuna");
-			btnNewButton.addActionListener(new ActionListener() {
+			JButton btnVacunaDosis = new JButton("Agregar Vacuna Dosis");
+			btnVacunaDosis.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					ListVac list = new ListVac(null);
+					RegVacuna_Dosis list = new RegVacuna_Dosis("");
 					list.setModal(true);
 					list.setLocationRelativeTo(null);
 					list.setVisible(true);
-					if(Clinica.getVacunaCodigo() != "") {
-						txtVacuna.setText(Clinica.getVacunaCodigo());
-						Clinica.getInstance().setVacunaCodigo("");
+					if(Clinica.getVacuna_DosisCodigo() != "") {
+						txtVacunaDosis.setText(Clinica.getVacuna_DosisCodigo());
+						Clinica.getInstance().setVacuna_DosisCodigo("");
 					}
+					
 				}
 			});
-			btnNewButton.setBounds(526, 382, 122, 23);
-			panel.add(btnNewButton);
+			btnVacunaDosis.setBounds(526, 382, 122, 23);
+			panel.add(btnVacunaDosis);
 			
 			JButton btnBuscarEnfermedades = new JButton("Buscar Enfermedad");
 			btnBuscarEnfermedades.addActionListener(new ActionListener() {
@@ -249,21 +265,93 @@ public class RegConsulta extends JDialog {
 					list.setModal(true);
 					list.setLocationRelativeTo(null);
 					list.setVisible(true);
-					if(Clinica.getSecretarioCodigo() != "") {
-						txtDiagnostico.setText(Clinica.getEnfermedadCodigo());
-						Clinica.getInstance().setEnfermedadCodigo("");
+					if(Clinica.getSecretarioCedula() != "") {
+						txtSecretario.setText(Clinica.getSecretarioCedula());
+						Clinica.getInstance().setSecretarioCedula("");
 					}
 				}
 			});
-			btnNewButton_1.setBounds(526, 103, 122, 23);
+			btnNewButton_1.setBounds(526, 103, 161, 23);
 			panel.add(btnNewButton_1);
+			
+			btnRegistrar = new JButton("Registrar");
+			btnRegistrar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Date fechaOcurrida = (Date) spnFecha.getValue();
+					Paciente paciente = Clinica.getInstance().buscarPaciente(txtPaciente.getText());
+					Medico medico = Clinica.getInstance().buscarMedico(txtCedMedico.getText());
+					Secretario secretario = Clinica.getInstance().buscarSecretario(txtSecretario.getText());
+					Enfermedad diagnostico = Clinica.getInstance().buscarEnfermedad(txtDiagnostico.getText());
+					
+					if(paciente == null || medico == null || txtDescripcion.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Disculpe, parece que faltan algunos datos en la creacion de una nueva consulta.\n Por favor, llene los datos que faltan e intenta la creacion de nuevo.\n", "Datos Ausentes", JOptionPane.INFORMATION_MESSAGE);
+					}
+					else {
+						Vacuna_Dosis vacuna_Dosis = new Vacuna_Dosis(Clinica.vacuna_dosis_id, Clinica.getCantMiligramos(), Clinica.getInstance().buscarVacuna(Clinica.getVacDosVacunaId()), txtConsultaCodigo.getText());
+						String asistenciaStr = (String) cbxAsistencia.getSelectedItem();
+						boolean asistencia = asistenciaStr.equalsIgnoreCase("Si");
+						Consulta nuevaConsulta = new Consulta(txtConsultaCodigo.getText(), paciente, medico, secretario, txtDescripcion.getText(), fechaOcurrida, diagnostico, txtTratamiento.getText(), vacuna_Dosis, asistencia);
+						
+						Date fechaConsulta = nuevaConsulta.getFechaConsulta();
+
+						// Define the desired date format
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+						// Convert Date to String
+						String fechaConsultaStr = sdf.format(fechaConsulta);
+						
+						
+						
+						//Buscar_Datos_Test.createConsulta(nuevaConsulta.getDescripcion(), fechaConsultaStr, nuevaConsulta.getTratamiento(), nuevaConsulta.isAsistencia(), Integer.parseInt(nuevaConsulta.getDiagnostico().getId()), nuevaConsulta.getVacuna_Dosis().getVacuna_dosis_id(), nuevaConsulta.getMedico().getId_medico(), nuevaConsulta.getSecretario().getId_secretario(), nuevaConsulta.getPaciente().getIdPaciente());
+						System.out.println(nuevaConsulta.getDescripcion());
+						System.out.println(fechaConsultaStr);
+						System.out.println(nuevaConsulta.getTratamiento());
+						System.out.println(nuevaConsulta.isAsistencia());
+						System.out.println(Integer.parseInt(nuevaConsulta.getDiagnostico().getId()));
+						System.out.println(nuevaConsulta.getVacuna_Dosis().getVacuna_dosis_id());
+						System.out.println(nuevaConsulta.getMedico().getId_medico());
+						Buscar_Datos_Test.createConsulta(nuevaConsulta.getDescripcion(), fechaConsultaStr, nuevaConsulta.getTratamiento(), nuevaConsulta.isAsistencia(), Integer.parseInt(nuevaConsulta.getDiagnostico().getId()), nuevaConsulta.getVacuna_Dosis().getVacuna_dosis_id(), nuevaConsulta.getMedico().getId_medico(), nuevaConsulta.getSecretario().getId_secretario(), nuevaConsulta.getPaciente().getIdPaciente());
+						
+						//Si el paciente tiene una enfermedad, su estado cambia a true (para decir que esta enfermo)
+						//Si no, su estado quede o vuelve a ser false (para decir que no esta enfermo)
+						
+						//if(diagnostico != null)
+							//nuevaConsulta.getPaciente().setEstado(true);					
+						//else
+							//nuevaConsulta.getPaciente().setEstado(false);
+						
+						/*
+						for(Consulta aux : Clinica.getInstance().getMisConsultas()) {
+							if(aux.getDiagnostico().isPermanente() == true && nuevaConsulta.getPaciente().getCedula().equalsIgnoreCase(aux.getPaciente().getCedula()))
+							{
+								nuevaConsulta.getPaciente().setEstado(true);
+								break;
+							}
+						}
+						*/
+						Clinica.getInstance().insertarConsulta(nuevaConsulta);
+						JOptionPane.showMessageDialog(null, "Consulta Creada!\n", "Creacion!", JOptionPane.INFORMATION_MESSAGE); 
+						clean();
+					}
+				}
+			});
+			btnRegistrar.setBounds(533, 577, 89, 23);
+			panel.add(btnRegistrar);
+			
+			btnCancelar1 = new JButton("Cancelar");
+			btnCancelar1.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					dispose();
+				}
+			});
+			btnCancelar1.setBounds(632, 577, 89, 23);
+			panel.add(btnCancelar1);
 		}
 		}
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
+			getContentPane().add(buttonPane, BorderLayout.NORTH);
 			{
 				JButton btnCrear = new JButton("Crear");
 				btnCrear.addActionListener(new ActionListener() {
@@ -273,7 +361,7 @@ public class RegConsulta extends JDialog {
 						Medico medico = Clinica.getInstance().buscarMedico(txtCedMedico.getText());
 						Secretario secretario = Clinica.getInstance().buscarSecretario(txtSecretario.getText());
 						Enfermedad diagnostico = Clinica.getInstance().buscarEnfermedad(txtDiagnostico.getText());
-						Vacuna_Dosis vacuna_Dosis = Clinica.getInstance().buscarVacuna_Dosis(txtVacuna.getText());
+						Vacuna_Dosis vacuna_Dosis = Clinica.getInstance().buscarVacuna_Dosis(txtVacunaDosis.getText());
 						if(paciente == null || medico == null || txtDescripcion.getText().isEmpty()) {
 							JOptionPane.showMessageDialog(null, "Disculpe, parece que faltan algunos datos en la creacion de una nueva consulta.\n Por favor, llene los datos que faltan e intenta la creacion de nuevo.\n", "Datos Ausentes", JOptionPane.INFORMATION_MESSAGE);
 						}
@@ -312,6 +400,7 @@ public class RegConsulta extends JDialog {
 						}
 					}
 				});
+				buttonPane.setLayout(new BorderLayout(0, 0));
 				btnCrear.setActionCommand("OK");
 				buttonPane.add(btnCrear);
 				getRootPane().setDefaultButton(btnCrear);
@@ -336,5 +425,31 @@ public class RegConsulta extends JDialog {
 		txtDiagnostico.setText("");
 		txtTratamiento.setText("");
 		spnFecha.setValue(new Date());
+	}
+	
+	
+	private void insertVacunaDosisToDatabase(Vacuna_Dosis vacunaDosis) {
+	    // SQL INSERT statement to insert a new record into the vacuna_dosis table
+	    String insertSql = "INSERT INTO vacuna_dosis (vacuna_dosis_id, cant_miligramos, id_vacuna, id_consulta) VALUES (?, ?, ?, ?)";
+
+	    try (Connection connection = DriverManager.getConnection(connectionUrl);
+	         PreparedStatement preparedStatement = connection.prepareStatement(insertSql)) {
+
+	        // Set parameters for the prepared statement
+	        preparedStatement.setInt(1, vacunaDosis.getVacuna_dosis_id()); // Assuming Vacuna_Dosis class has getVacunaDosisId() method
+	        preparedStatement.setInt(2, vacunaDosis.getCant_miligramos());
+	        preparedStatement.setInt(3, Integer.parseInt(vacunaDosis.getVacuna().getId_vacuna())); // Assuming Vacuna class has getIdVacuna() method
+	        preparedStatement.setInt(4, Integer.parseInt(vacunaDosis.getConsulta())); // Assuming Consulta class has getIdConsulta() method
+
+	        // Execute the insert statement
+	        int rowsAffected = preparedStatement.executeUpdate();
+	        if (rowsAffected > 0) {
+	            System.out.println("Vacuna_Dosis successfully inserted into the database.");
+	        } else {
+	            System.out.println("Failed to insert Vacuna_Dosis into the database.");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
 	}
 }

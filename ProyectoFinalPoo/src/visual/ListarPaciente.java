@@ -116,8 +116,10 @@ public class ListarPaciente extends JDialog {
 							btnModificar.setEnabled(true);
 							btnConsultaHistorial.setEnabled(true);
 							btnSeleccionar.setEnabled(true);
-							String cedula =  table.getValueAt(index, 0).toString();
+							String cedula =  table.getValueAt(index, 2).toString();
+							System.out.println(cedula);
 							seleccionado = Clinica.getInstance().buscarPaciente(cedula);
+							System.out.println(seleccionado.getPersona().getCedula());
 						}
 					}
 				}
@@ -376,5 +378,4 @@ public class ListarPaciente extends JDialog {
 		
 	}
 }
-
 

@@ -262,8 +262,13 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
+import logico.Clinica;
+import logico.Secretario;
+
 import java.awt.Color;
 import javax.swing.border.LineBorder;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ListSecretario extends JDialog {
 
@@ -274,6 +279,10 @@ public class ListSecretario extends JDialog {
     private static int seleccion;
     private JComboBox<String> cbxCondicion;
     static JLabel lblNewLabel_1;
+    JButton btnModificar;
+    JButton btnConsultaHistorial;
+    JButton btnSeleccionar;
+    private static Secretario seleccionado = null;
 
     public static void main(String[] args) {
         try {
@@ -306,6 +315,23 @@ public class ListSecretario extends JDialog {
                 return false;
             }
         };
+        table.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mouseClicked(MouseEvent e) {
+        		if (table.getSelectedRow() >= 0) {
+					int index = table.getSelectedRow();
+					if(index >= 0) {
+						btnModificar.setEnabled(true);
+						btnConsultaHistorial.setEnabled(true);
+						btnSeleccionar.setEnabled(true);
+						String cedula =  table.getValueAt(index, 2).toString();
+						System.out.println(cedula);
+						seleccionado = Clinica.getInstance().buscarSecretario(cedula);
+						System.out.println(seleccionado.getPersona().getCedula());
+					}
+				}
+        	}
+        });
         scrollPane.setViewportView(table);
 
         JLabel lblNewLabel = new JLabel("Filtros de Busqueda:");
@@ -342,6 +368,26 @@ public class ListSecretario extends JDialog {
                 dispose();
             }
         });
+        
+        btnSeleccionar = new JButton("Seleccionar Secretario");
+        btnSeleccionar.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+				if(seleccionado != null) {
+					Clinica.getInstance().setSecretarioCedula(seleccionado.getPersona().getCedula());
+					dispose();
+				}
+				else
+					JOptionPane.showMessageDialog(null, "Disculpe, parece que no hay un valor seleccionado aqui para: \n" + Clinica.getPacienteCedula() + "\n Por favor, seleccione un paciente y intentalo de nuevo.\n", "Error", JOptionPane.INFORMATION_MESSAGE);
+			}
+        });
+
+        buttonPane.add(btnSeleccionar);
+        
+        btnConsultaHistorial = new JButton("Consulta Historial");
+        buttonPane.add(btnConsultaHistorial);
+        
+        btnModificar = new JButton("Modificar");
+        buttonPane.add(btnModificar);
         btnCancelar.setActionCommand("Cancel");
         buttonPane.add(btnCancelar);
 
@@ -349,7 +395,7 @@ public class ListSecretario extends JDialog {
     }
 
     public static void loadSecretarios(int seleccion) {
-        modelo.setRowCount(0);
+        modelo.setRowCount(0); // Clear the table
         fila = new Object[modelo.getColumnCount()];
 
         Connection connection = null;
@@ -358,23 +404,22 @@ public class ListSecretario extends JDialog {
         String connectionUrl =
                 "jdbc:sqlserver://192.168.100.118:1433;"
                         + "database=clinica_stanley_eduardo;"
-                        + "user=s.gomez;" //TU USER
-                        + "password=Headphone1130Jack;" //TU CLAVE
+                        + "user=s.gomez;" // Your username
+                        + "password=Headphone1130Jack;" // Your password
                         + "encrypt=true;"
                         + "trustServerCertificate=true;"
                         + "loginTimeout=30;";
         
         try {
             // Establish the connection
-        	
             connection = DriverManager.getConnection(connectionUrl);
 
             // Create the statement
             statement = connection.createStatement();
 
-            // Define the query based on the selection
+            // Define the query to retrieve Secretario and Persona data
             String query = "SELECT s.id_secretario, p.id_persona, p.nombre, p.apellido, p.fecha_de_nacimiento, " +
-                           "p.direccion, p.sexo, p.telefono_personal, s.telefono_trabajo, c.usuario " +
+                           "p.direccion, p.sexo, p.telefono_personal, p.cedula, s.telefono_trabajo " +
                            "FROM secretario s " +
                            "JOIN persona p ON s.id_persona = p.id_persona " +
                            "JOIN cuenta c ON s.id_cuenta = c.id_cuenta";
@@ -391,18 +436,20 @@ public class ListSecretario extends JDialog {
 
             // Process the results and populate the JTable
             while (resultSet.next()) {
-                fila[0] = resultSet.getInt("id_persona");
-                fila[1] = resultSet.getInt("id_secretario");
-                fila[2] = resultSet.getString("usuario");  // Assuming "Cedula" is stored as "usuario"
-                fila[3] = resultSet.getString("nombre");
-                fila[4] = resultSet.getString("apellido");
+                fila[0] = resultSet.getInt("id_secretario");    // Secretario ID
+                fila[1] = resultSet.getInt("id_persona");       // Persona ID
+                fila[2] = resultSet.getString("cedula");        // Cedula from Persona
+                fila[3] = resultSet.getString("nombre");        // Nombre from Persona
+                fila[4] = resultSet.getString("apellido");      // Apellido from Persona
+                
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 String fechaNacimientoStr = dateFormat.format(resultSet.getDate("fecha_de_nacimiento"));
-                fila[5] = fechaNacimientoStr;
-                fila[6] = resultSet.getString("sexo");
-                fila[7] = resultSet.getString("direccion");
-                fila[8] = resultSet.getString("telefono_personal");
-                fila[9] = resultSet.getString("telefono_trabajo");
+                fila[5] = fechaNacimientoStr;                   // Fecha de Nacimiento from Persona
+                
+                fila[6] = resultSet.getString("sexo");          // Sexo from Persona
+                fila[7] = resultSet.getString("direccion");     // Direccion from Persona
+                fila[8] = resultSet.getString("telefono_personal"); // Telefono Personal from Persona
+                fila[9] = resultSet.getString("telefono_trabajo");  // Telefono Trabajo from Secretario
 
                 modelo.addRow(fila);
             }
@@ -425,16 +472,17 @@ public class ListSecretario extends JDialog {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.getTableHeader().setReorderingAllowed(false);
         TableColumnModel columnModel = table.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(80);
-        columnModel.getColumn(1).setPreferredWidth(80);
-        columnModel.getColumn(2).setPreferredWidth(80);
-        columnModel.getColumn(3).setPreferredWidth(150);
-        columnModel.getColumn(4).setPreferredWidth(150);
-        columnModel.getColumn(5).setPreferredWidth(150);
-        columnModel.getColumn(6).setPreferredWidth(80);
-        columnModel.getColumn(7).setPreferredWidth(120);
-        columnModel.getColumn(8).setPreferredWidth(150);
-        columnModel.getColumn(9).setPreferredWidth(150);
+        columnModel.getColumn(0).setPreferredWidth(80);  // Secretario ID
+        columnModel.getColumn(1).setPreferredWidth(80);  // Persona ID
+        columnModel.getColumn(2).setPreferredWidth(120); // Cedula
+        columnModel.getColumn(3).setPreferredWidth(150); // Nombre
+        columnModel.getColumn(4).setPreferredWidth(150); // Apellido
+        columnModel.getColumn(5).setPreferredWidth(150); // Fecha de Nacimiento
+        columnModel.getColumn(6).setPreferredWidth(80);  // Sexo
+        columnModel.getColumn(7).setPreferredWidth(120); // Direccion
+        columnModel.getColumn(8).setPreferredWidth(150); // Telefono Personal
+        columnModel.getColumn(9).setPreferredWidth(150); // Telefono Trabajo
+
         lblNewLabel_1.setText("Cantidad de Personas en Lista: " + modelo.getRowCount());
     }
 }
