@@ -359,74 +359,117 @@ public class Buscar_Datos_Test {
 	 
 	 
 	 public static ArrayList<Cita> getCitas() {
-	        ArrayList<Cita> citas = new ArrayList<>();
-	        String query = "SELECT c.id_cita, c.nombre, c.fecha_cita, c.asistencia, c.id_medico, c.id_tipo_cita, c.id_paciente, "
-	                     + "m.telefono_trabajo, m.id_especialidad, m.id_cuenta, m.id_persona AS medico_id_persona, "
-	                     + "p_sangre.sangre, p_sangre.contacto_emergencia, p_sangre.id_persona AS paciente_id_persona, "
-	                     + "p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, p.fecha_de_nacimiento AS paciente_fecha, "
-	                     + "p.direccion AS paciente_direccion, p.sexo AS paciente_sexo, p.telefono AS paciente_telefono, p.cedula AS paciente_cedula "
-	                     + "FROM Cita c "
-	                     + "LEFT JOIN Medico m ON c.id_medico = m.id_medico "
-	                     + "LEFT JOIN Paciente p_sangre ON c.id_paciente = p_sangre.id_paciente "
-	                     + "LEFT JOIN Persona p ON p.id_persona = p_sangre.id_persona";
+		    ArrayList<Cita> citas = new ArrayList<>();
+		    String query = "SELECT c.id_cita, c.nombre AS cita_nombre, c.fecha_cita, c.asistencia, c.id_medico, c.id_tipo_cita, c.id_paciente, "
+		                 + "m.telefono_trabajo, m.id_especialidad, m.id_cuenta AS medico_id_cuenta, m.id_persona AS medico_id_persona, "
+		                 + "p_sangre.sangre, p_sangre.contacto_emergencia, p_sangre.id_persona AS paciente_id_persona, "
+		                 + "p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, p.fecha_de_nacimiento AS paciente_fecha, "
+		                 + "p.direccion AS paciente_direccion, p.sexo AS paciente_sexo, p.telefono AS paciente_telefono, p.cedula AS paciente_cedula, "
+		                 + "s.id_secretario, s.telefono_trabajo AS secretario_telefono, s.id_cuenta AS secretario_id_cuenta, s.id_persona AS secretario_id_persona, "
+		                 + "ps.nombre AS secretario_nombre, ps.apellido AS secretario_apellido, ps.fecha_de_nacimiento AS secretario_fecha, "
+		                 + "ps.direccion AS secretario_direccion, ps.sexo AS secretario_sexo, ps.telefono AS secretario_telefono_personal, ps.cedula AS secretario_cedula, "
+		                 + "cu.id_cuenta, cu.usuario, cu.contrasena, "
+		                 + "tc.id_tipo AS tipo_cita_id, tc.nombre AS tipo_cita_nombre " // Fields for 'tipo_cita'
+		                 + "FROM Cita c "
+		                 + "LEFT JOIN Medico m ON c.id_medico = m.id_medico "
+		                 + "LEFT JOIN Paciente p_sangre ON c.id_paciente = p_sangre.id_paciente "
+		                 + "LEFT JOIN Persona p ON p.id_persona = p_sangre.id_persona "
+		                 + "LEFT JOIN Secretario s ON c.id_secretario = s.id_secretario "
+		                 + "LEFT JOIN Persona ps ON s.id_persona = ps.id_persona "
+		                 + "LEFT JOIN Cuenta cu ON s.id_cuenta = cu.id_cuenta "
+		                 + "LEFT JOIN Tipo_Cita tc ON c.id_tipo_cita = tc.id_tipo"; // Join 'tipo_cita' table
 
-	        try (Connection connection = DriverManager.getConnection(connectionUrl);
-	             PreparedStatement statement = connection.prepareStatement(query);
-	             ResultSet resultSet = statement.executeQuery()) {
+		    try (Connection connection = DriverManager.getConnection(connectionUrl);
+		         PreparedStatement statement = connection.prepareStatement(query);
+		         ResultSet resultSet = statement.executeQuery()) {
 
-	            while (resultSet.next()) {
-	                String idCita = resultSet.getString("id_cita");
-	                String nombre = resultSet.getString("nombre");
-	                Date fechaCita = resultSet.getDate("fecha_cita");
-	                boolean asistencia = resultSet.getBoolean("asistencia");
-	                
+		        while (resultSet.next()) {
+		            String idCita = resultSet.getString("id_cita");
+		            String citaNombre = resultSet.getString("cita_nombre");
+		            Date fechaCita = resultSet.getDate("fecha_cita");
+		            boolean asistencia = resultSet.getBoolean("asistencia");
 
-	                int idMedico = resultSet.getInt("id_medico");
-	                String telefonoTrabajo = resultSet.getString("telefono_trabajo");
-	                int idEspecialidad = resultSet.getInt("id_especialidad");
-	                int idCuenta = resultSet.getInt("id_cuenta");
-	                int medicoIdPersona = resultSet.getInt("medico_id_persona");
-	                
-	                Persona medicoPersona = new Persona(
-	                    medicoIdPersona,
-	                    resultSet.getString("paciente_nombre"),
-	                    resultSet.getString("paciente_apellido"),
-	                    resultSet.getDate("paciente_fecha"),
-	                    resultSet.getString("paciente_direccion"),
-	                    resultSet.getString("paciente_sexo"),
-	                    resultSet.getString("paciente_telefono"),
-	                    resultSet.getString("paciente_cedula")
-	                );
-	                
-	                Medico medico = new Medico(idMedico, telefonoTrabajo, idEspecialidad, idCuenta, medicoPersona);
-	                
-	        
-	                int idPaciente = resultSet.getInt("id_paciente");
-	                String sangre = resultSet.getString("sangre");
-	                String contactoEmergencia = resultSet.getString("contacto_emergencia");
-	                Persona pacientePersona = new Persona(
-	                    resultSet.getInt("paciente_id_persona"),
-	                    resultSet.getString("paciente_nombre"),
-	                    resultSet.getString("paciente_apellido"),
-	                    resultSet.getDate("paciente_fecha"),
-	                    resultSet.getString("paciente_direccion"),
-	                    resultSet.getString("paciente_sexo"),
-	                    resultSet.getString("paciente_telefono"),
-	                    resultSet.getString("paciente_cedula")
-	                );
-	                
-	                Paciente paciente = new Paciente(idPaciente, sangre, contactoEmergencia, pacientePersona);
-	                
-	       
-	                Cita cita = new Cita(idCita, nombre, fechaCita, asistencia, medico, resultSet.getString("id_tipo_cita"), paciente);
-	                citas.add(cita);
-	            }
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
+		            // Medico and Persona for Medico
+		            int idMedico = resultSet.getInt("id_medico");
+		            String telefonoTrabajo = resultSet.getString("telefono_trabajo");
+		            int idEspecialidad = resultSet.getInt("id_especialidad");
+		            int idCuentaMedico = resultSet.getInt("medico_id_cuenta");
+		            int medicoIdPersona = resultSet.getInt("medico_id_persona");
 
-	        return citas;
-	    }
+		            Persona medicoPersona = new Persona(
+		                medicoIdPersona,
+		                resultSet.getString("paciente_nombre"),
+		                resultSet.getString("paciente_apellido"),
+		                resultSet.getDate("paciente_fecha"),
+		                resultSet.getString("paciente_direccion"),
+		                resultSet.getString("paciente_sexo"),
+		                resultSet.getString("paciente_telefono"),
+		                resultSet.getString("paciente_cedula")
+		            );
+
+		            Medico medico = new Medico(idMedico, telefonoTrabajo, idEspecialidad, idCuentaMedico, medicoPersona);
+
+		            // Paciente and Persona for Paciente
+		            int idPaciente = resultSet.getInt("id_paciente");
+		            String sangre = resultSet.getString("sangre");
+		            String contactoEmergencia = resultSet.getString("contacto_emergencia");
+		            Persona pacientePersona = new Persona(
+		                resultSet.getInt("paciente_id_persona"),
+		                resultSet.getString("paciente_nombre"),
+		                resultSet.getString("paciente_apellido"),
+		                resultSet.getDate("paciente_fecha"),
+		                resultSet.getString("paciente_direccion"),
+		                resultSet.getString("paciente_sexo"),
+		                resultSet.getString("paciente_telefono"),
+		                resultSet.getString("paciente_cedula")
+		            );
+
+		            Paciente paciente = new Paciente(idPaciente, sangre, contactoEmergencia, pacientePersona);
+
+		            // Secretario and its Cuenta and Persona
+		            int idSecretario = resultSet.getInt("id_secretario");
+		            String secretarioTelefono = resultSet.getString("secretario_telefono");
+		            int secretarioIdCuenta = resultSet.getInt("secretario_id_cuenta");
+		            int secretarioIdPersona = resultSet.getInt("secretario_id_persona");
+
+		            // Create Cuenta object for Secretario
+		            String cuentaId = String.valueOf(resultSet.getInt("id_cuenta")); // Convert int to String
+		            Cuenta cuenta = new Cuenta(
+		                cuentaId,
+		                resultSet.getString("usuario"),
+		                resultSet.getString("contrasena")
+		            );
+
+		            // Create Persona object for Secretario
+		            Persona secretarioPersona = new Persona(
+		                secretarioIdPersona,
+		                resultSet.getString("secretario_nombre"),
+		                resultSet.getString("secretario_apellido"),
+		                resultSet.getDate("secretario_fecha"),
+		                resultSet.getString("secretario_direccion"),
+		                resultSet.getString("secretario_sexo"),
+		                resultSet.getString("secretario_telefono_personal"),
+		                resultSet.getString("secretario_cedula")
+		            );
+
+		            // Create Secretario object
+		            Secretario secretario = new Secretario(idSecretario, secretarioTelefono, cuenta, secretarioPersona);
+
+		            // Tipo_Cita object
+		            String tipoCitaId = resultSet.getString("tipo_cita_id");
+		            String tipoCitaNombre = resultSet.getString("tipo_cita_nombre");
+		            Tipo_Cita tipoCita = new Tipo_Cita(tipoCitaId, tipoCitaNombre);
+
+		            // Create Cita object with Tipo_Cita
+		            Cita cita = new Cita(idCita, citaNombre, fechaCita, asistencia, medico, tipoCita, paciente, secretario);
+		            citas.add(cita);
+		        }
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		    }
+
+		    return citas;
+		}
 	 
 	 
 	 public static Cuenta getCuentaByUsername(String username) {

@@ -14,13 +14,14 @@ public class Cita implements Serializable{
 	private Date fecha_cita;
 	private boolean asistencia;
 	private Medico id_medico;
-	private String id_tipo_cita;
+	private Tipo_Cita id_tipo_cita;
 	private Paciente paciente;
+	private Secretario secretario;
 	
 	
 
 	public Cita(String id_cita, String nombre, Date fecha_cita, boolean asistencia, Medico id_medico,
-			String id_tipo_cita, Paciente paciente) {
+			Tipo_Cita id_tipo_cita, Paciente paciente, Secretario secretario) {
 		super();
 		this.id_cita = id_cita;
 		this.nombre = nombre;
@@ -29,6 +30,7 @@ public class Cita implements Serializable{
 		this.id_medico = id_medico;
 		this.id_tipo_cita = id_tipo_cita;
 		this.paciente = paciente;
+		this.secretario = secretario;
 	}
 
 
@@ -93,13 +95,13 @@ public class Cita implements Serializable{
 
 
 
-	public String getId_tipo_cita() {
+	public Tipo_Cita getId_tipo_cita() {
 		return id_tipo_cita;
 	}
 
 
 
-	public void setId_tipo_cita(String id_tipo_cita) {
+	public void setId_tipo_cita(Tipo_Cita id_tipo_cita) {
 		this.id_tipo_cita = id_tipo_cita;
 	}
 
@@ -113,6 +115,18 @@ public class Cita implements Serializable{
 
 	public void setPaciente(Paciente paciente) {
 		this.paciente = paciente;
+	}
+
+
+
+	public Secretario getSecretario() {
+		return secretario;
+	}
+
+
+
+	public void setSecretario(Secretario secretario) {
+		this.secretario = secretario;
 	}
 
 	

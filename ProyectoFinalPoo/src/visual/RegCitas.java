@@ -11,6 +11,8 @@ import logico.Cita;
 import logico.Clinica;
 import logico.Medico;
 import logico.Paciente;
+import logico.Secretario;
+import logico.Tipo_Cita;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,10 +35,12 @@ public class RegCitas extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField txtNombre;
-	private JTextField txtCedula;
+	private JTextField txtPaciente;
 	private JTextField txtDoctor;
 	private JSpinner spnTiempo;
 	private JTextField txtTipo;
+	private JTextField txtSecretario;
+	private JTextField txtCita;
 
 	/**
 	 * Launch the application.
@@ -68,29 +72,29 @@ public class RegCitas extends JFrame {
 		contentPane.setLayout(null);
 		
 
-		JLabel lblNewLabel = new JLabel("Datos del paciente:");
+		JLabel lblNewLabel = new JLabel("Paciente(Cedula):");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblNewLabel.setBounds(15, 28, 242, 20);
+		lblNewLabel.setBounds(19, 151, 137, 20);
 		contentPane.add(lblNewLabel);
 		
 		JLabel lblNombre = new JLabel("Nombre:");
 		lblNombre.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblNombre.setBounds(15, 119, 81, 20);
+		lblNombre.setBounds(19, 95, 81, 20);
 		contentPane.add(lblNombre);
 		
-		JLabel lblCedula = new JLabel("C\u00E9dula:");
+		JLabel lblCedula = new JLabel("Secretario (Cedula):");
 		lblCedula.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblCedula.setBounds(15, 74, 81, 20);
+		lblCedula.setBounds(19, 219, 137, 20);
 		contentPane.add(lblCedula);
 		
 		JLabel lblDatosDeLa = new JLabel("Datos de la cita:");
 		lblDatosDeLa.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblDatosDeLa.setBounds(15, 209, 196, 20);
+		lblDatosDeLa.setBounds(19, 11, 196, 20);
 		contentPane.add(lblDatosDeLa);
 		
 		JLabel lblDoctor = new JLabel("Medico (Cedula):");
 		lblDoctor.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblDoctor.setBounds(15, 245, 137, 20);
+		lblDoctor.setBounds(19, 177, 137, 20);
 		contentPane.add(lblDoctor);
 		
 		JLabel lblTipo = new JLabel("Tipo:");
@@ -104,24 +108,24 @@ public class RegCitas extends JFrame {
 		contentPane.add(lblFecha);
 		
 		txtNombre = new JTextField();
-		txtNombre.setEditable(false);
-		txtNombre.setBounds(86, 116, 313, 26);
+		txtNombre.setBounds(148, 92, 255, 26);
 		contentPane.add(txtNombre);
 		txtNombre.setColumns(10);
 		
-		txtCedula = new JTextField();
-		txtCedula.setEditable(false);
-		txtCedula.setColumns(10);
-		txtCedula.setBounds(86, 71, 115, 26);
-		contentPane.add(txtCedula);
+		txtPaciente = new JTextField();
+		txtPaciente.setEditable(false);
+		txtPaciente.setColumns(10);
+		txtPaciente.setBounds(148, 151, 115, 26);
+		contentPane.add(txtPaciente);
 		
 		txtDoctor = new JTextField();
 		txtDoctor.setEditable(false);
 		txtDoctor.setColumns(10);
-		txtDoctor.setBounds(100, 245, 255, 26);
+		txtDoctor.setBounds(148, 179, 255, 26);
 		contentPane.add(txtDoctor);
 		
 		txtTipo = new JTextField();
+		txtTipo.setEditable(false);
 		txtTipo.setColumns(10);
 		txtTipo.setBounds(86, 285, 269, 26);
 		contentPane.add(txtTipo);
@@ -137,13 +141,13 @@ public class RegCitas extends JFrame {
 				{
 					String tempPac = Clinica.getInstance().getPacienteCedula();
 					Paciente pacienteTemp = Clinica.getInstance().buscarPaciente(tempPac);
-					txtCedula.setText(tempPac);
+					txtPaciente.setText(tempPac);
 					txtNombre.setText(pacienteTemp.getPersona().getNombre());
 					Clinica.getInstance().setPacienteCedula("");
 				}
 			}
 		});
-		btnNewButton.setBounds(225, 74, 89, 20);
+		btnNewButton.setBounds(273, 157, 89, 20);
 		contentPane.add(btnNewButton);
 		
 		JPanel panel_1 = new JPanel();
@@ -173,7 +177,7 @@ public class RegCitas extends JFrame {
 				}
 			}
 		});
-		btnNewButton_1.setBounds(365, 244, 89, 23);
+		btnNewButton_1.setBounds(413, 178, 89, 23);
 		contentPane.add(btnNewButton_1);
 		
 		spnTiempo = new JSpinner();
@@ -186,18 +190,78 @@ public class RegCitas extends JFrame {
 		JRadioButton btnAsistencia = new JRadioButton("Asistencia");
 		btnAsistencia.setBounds(365, 329, 109, 23);
 		contentPane.add(btnAsistencia);
+		
+		txtSecretario = new JTextField();
+		txtSecretario.setEditable(false);
+		txtSecretario.setBounds(148, 216, 255, 26);
+		contentPane.add(txtSecretario);
+		txtSecretario.setColumns(10);
+		
+		JButton btnSecretario = new JButton("Buscar");
+		btnSecretario.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListSecretario list = new ListSecretario();
+				list.setModal(true);
+				list.setLocationRelativeTo(null);
+				list.setVisible(true);
+				if(Clinica.getSecretarioCedula() != "") {
+					txtSecretario.setText(Clinica.getSecretarioCedula());
+					Clinica.getInstance().setSecretarioCedula("");
+				}
+			}
+		});
+		btnSecretario.setBounds(413, 218, 89, 23);
+		contentPane.add(btnSecretario);
+		
+		JLabel lblNewLabel_1 = new JLabel("ID de Cita:");
+		lblNewLabel_1.setBounds(19, 42, 102, 14);
+		contentPane.add(lblNewLabel_1);
+		
+		txtCita = new JTextField();
+		txtCita.setEnabled(true);
+		txtCita.setEditable(false);
+		txtCita.setText("Cita" + Clinica.getInstance().citaCodigo);
+		txtCita.setBounds(148, 42, 170, 20);
+		contentPane.add(txtCita);
+		txtCita.setColumns(10);
+		
+		JButton btnTipoCita = new JButton("Buscar");
+		btnTipoCita.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListTipoCita list = new ListTipoCita();
+				list.setModal(true);
+				list.setLocationRelativeTo(null);
+				list.setVisible(true);
+				if(Clinica.getTipoCitaCodigo() != "") {
+					txtTipo.setText(Clinica.getTipoCitaCodigo());
+					Clinica.getInstance().setTipoCitaCodigo("");;
+				}
+			}
+		});
+		btnTipoCita.setBounds(369, 287, 89, 23);
+		contentPane.add(btnTipoCita);
 		btnRegistrar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				if(txtCedula.getText().isEmpty() || txtNombre.getText().isEmpty() ||txtDoctor.getText().isEmpty() || txtTipo.getText().isEmpty()) {
+				if(txtPaciente.getText().isEmpty() || txtNombre.getText().isEmpty() ||txtDoctor.getText().isEmpty() || txtTipo.getText().isEmpty() || txtSecretario.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Disculpe, parece que faltan algunos datos en la creacion de una nueva consulta.\n Por favor, llene los datos que faltan e intenta la registracion de nuevo.\n", "Datos Ausentes", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else {
 					Date tiempo = (Date) spnTiempo.getValue();
-					//Cita aux = new Cita(txtNombre.getText(), tiempo, txtDoctor.getText(), txtTipo.getText(),btnAsistencia.isSelected(), txtCedula.getText());
+					//Cita aux = new Cita(txtCita.getText(), txtNombre.getText(), tiempo, btnAsistencia.isSelected(), txtDoctor.getText(), txtTipo.getText(), txtCedula.getText(), txtSecretario.getText());
+					
+					Paciente paciente = Clinica.getInstance().buscarPaciente(txtPaciente.getText());
+					Medico medico = Clinica.getInstance().buscarMedico(txtDoctor.getText());
+					Secretario secretario = Clinica.getInstance().buscarSecretario(txtSecretario.getText());
+					Tipo_Cita tipo_cita = Clinica.getInstance().getTipoCitaById(txtTipo.getText());
+					// Crear id_cita
+					Cita aux = new Cita(txtCita.getText(), txtNombre.getText(), tiempo, btnAsistencia.isSelected(), medico, tipo_cita, paciente, secretario);
+					//Cita aux = new Cita(id_cita, nombre, fecha_cita, asistencia, id_medico, id_tipo_cita, paciente, secretario)
+					
+					
 					//Cita aux = new Cita(id_cita, nombre, fecha_cita, asistencia, id_medico, id_tipo_cita, paciente);
 					JOptionPane.showMessageDialog(null, "Cita Registrada!\n", "Registracion!", JOptionPane.INFORMATION_MESSAGE); 
-					//Clinica.getInstance().RegistrarCita(aux);
+					Clinica.getInstance().RegistrarCita(aux);
 					clean();
 				}
 			}
@@ -211,7 +275,7 @@ public class RegCitas extends JFrame {
 	}
 	private void clean() {
 		txtNombre.setText("");
-		txtCedula.setText("");
+		txtPaciente.setText("");
 		txtDoctor.setText("");
 		txtTipo.setText("");
 		spnTiempo.setValue(new Date());

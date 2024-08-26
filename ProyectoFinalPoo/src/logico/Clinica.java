@@ -35,10 +35,13 @@ public class Clinica implements Serializable{
 	private ArrayList<Consulta> misConsultas;
 	private ArrayList<Enfermedad> misEnfermedades;
 	private ArrayList<Cuenta> misAdministradores;
+	private ArrayList<Tipo_Cita> misTipo_Citas;
 	private static Cuenta loginAdministrador;
 	public static int codigo = 1;
 	public static int consultaCodigo = 1;
 	public static int codigoEnf = 1;
+	public static int citaCodigo = 1;
+	public static int tipoCitaCodigo = 1;
 	private static Clinica clinic = null;
 
 	public static String personaCedula = "";
@@ -48,6 +51,7 @@ public class Clinica implements Serializable{
 	public static String vacunaCodigo = "";
 	public static String vacunaDosisCodigo = "";
 	public static String enfermedadCodigo = "";
+	public static String tipoCodigo = "";
 	public static int vacuna_dosis_id = 5;
 	public static int cant_miligramos = 0;
 	public static String vacDosVacunaId = "";
@@ -484,6 +488,35 @@ public class Clinica implements Serializable{
 	    return cuenta;
 	}
 	
+	public Tipo_Cita getTipoCitaById(String idTipo) {
+        Tipo_Cita tipoCita = null;
+
+        // SQL query to select the tipo_cita based on the id_tipo_cita
+        String query = "SELECT id_tipo_cita, nombre " +
+                       "FROM tipo_cita " +
+                       "WHERE id_tipo_cita = ?";
+
+        try (Connection connection = DriverManager.getConnection(connectionUrl);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, idTipo); // Set the id_tipo_cita parameter
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                // Extract TipoCita data
+                String idTipoResult = resultSet.getString("id_tipo_cita");
+                String nombre = resultSet.getString("nombre");
+
+                // Create TipoCita object
+                tipoCita = new Tipo_Cita(idTipoResult, nombre);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return tipoCita;
+    }
+	
 	
 	public Consulta buscarConsulta(String idConsulta) {
 		Consulta temp = null;
@@ -499,6 +532,28 @@ public class Clinica implements Serializable{
 		
 		return temp;
 	}
+	
+	public void RegistrarCita(Cita cita) {
+		//misCitas.add(aux);		
+		String sql = "INSERT INTO cita (nombre, fecha_cita, asistencia, id_secretario, id_medico, id_paciente, id_tipo_cita) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(connectionUrl);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            pstmt.setString(1, cita.getNombre());
+            pstmt.setTimestamp(2, new java.sql.Timestamp(cita.getFecha_cita().getTime()));
+            pstmt.setBoolean(3, cita.isAsistencia());
+            pstmt.setInt(4, cita.getSecretario().getId_secretario());
+            pstmt.setInt(5, cita.getId_medico().getId_medico());
+            pstmt.setInt(6, cita.getPaciente().getIdPaciente());
+            pstmt.setInt(7, Integer.parseInt(cita.getId_tipo_cita().getId_tipo()));
+
+            pstmt.executeUpdate();
+            System.out.println("Cita registered successfully!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 	/*
 	public Vacuna buscarVacuna(String idVacuna) {
 		Vacuna temp = null;
@@ -752,10 +807,7 @@ public class Clinica implements Serializable{
 
 
 
-	public void RegistrarCita(Cita aux) {
-		misCitas.add(aux);		
-		
-	}
+	
 	public static String getVacunaCodigo() {
 		return vacunaCodigo;
 	}
@@ -929,8 +981,24 @@ public class Clinica implements Serializable{
 	public void setVacDosConsultaId(String vacDosConsultaId) {
 		this.vacDosConsultaId = vacDosConsultaId;
 	}
-	
 
+
+	public ArrayList<Tipo_Cita> getMisTipo_Citas() {
+		return misTipo_Citas;
+	}
+
+
+	public void setMisTipo_Citas(ArrayList<Tipo_Cita> misTipo_Citas) {
+		this.misTipo_Citas = misTipo_Citas;
+	}
+	
+	public static String getTipoCitaCodigo() {
+		return tipoCodigo;
+	}
+	
+	public void setTipoCitaCodigo(String tipoCodigo) {
+		this.tipoCodigo = tipoCodigo;
+	}
 	
 
 
