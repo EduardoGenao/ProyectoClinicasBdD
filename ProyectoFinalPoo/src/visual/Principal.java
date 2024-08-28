@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -34,6 +35,12 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
+import java.awt.Color;
+import javax.swing.JLabel;
+import javax.swing.UIManager;
+import java.awt.FlowLayout;
+import java.awt.SystemColor;
 
 public class Principal extends JFrame {
 
@@ -65,6 +72,8 @@ public class Principal extends JFrame {
 	 * Create the frame.
 	 **/
 	public Principal() {
+		setForeground(SystemColor.textHighlight);
+		setBackground(new Color(0, 120, 215));
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -86,14 +95,19 @@ public class Principal extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBackground(UIManager.getColor("Button.shadow"));
+		menuBar.setForeground(UIManager.getColor("Button.shadow"));
 		setJMenuBar(menuBar);
 		JMenu mnNewMenu = new JMenu("Paciente");
+		mnNewMenu.setForeground(new Color(255, 128, 0));
+		mnNewMenu.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
 		menuBar.add(mnNewMenu);
 		dim = getToolkit().getScreenSize();
 		setSize(dim.width, dim.height-35);
 		setLocationRelativeTo(null);
 		
 		JMenuItem mntmNewMenuItem = new JMenuItem("Registrar Paciente");
+		mntmNewMenuItem.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {	
 				RegPaciente reg = new RegPaciente(null, null);
@@ -105,6 +119,7 @@ public class Principal extends JFrame {
 		mnNewMenu.add(mntmNewMenuItem);
 		
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("Listar Pacientes");
+		mntmNewMenuItem_5.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ListarPaciente list = new ListarPaciente();
@@ -115,10 +130,13 @@ public class Principal extends JFrame {
 		});
 		mnNewMenu.add(mntmNewMenuItem_5);
 		
-		JMenu mnNewMenu_1 = new JMenu("Médico");
+		JMenu mnNewMenu_1 = new JMenu("Medico");
+		mnNewMenu_1.setForeground(new Color(255, 128, 0));
+		mnNewMenu_1.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
 		menuBar.add(mnNewMenu_1);
 		
-		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Registrar Médico");
+		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Registrar Medico");
+		mntmNewMenuItem_1.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegMed reg = new RegMed(null);
@@ -130,6 +148,7 @@ public class Principal extends JFrame {
 		mnNewMenu_1.add(mntmNewMenuItem_1);
 		
 		JMenuItem mntmNewMenuItem_11 = new JMenuItem("Listar Medicos");
+		mntmNewMenuItem_11.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_11.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ListMed list = new ListMed();
@@ -155,9 +174,12 @@ public class Principal extends JFrame {
 		mnNewMenu_7.add(mntmNewMenuItem_13);
 		
 		JMenu mnNewMenu_5 = new JMenu("Enfermedad");
+		mnNewMenu_5.setForeground(new Color(255, 128, 0));
+		mnNewMenu_5.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
 		menuBar.add(mnNewMenu_5);
 		
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Agregar Enfermedad");
+		mntmNewMenuItem_4.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegistrarEnfermedad frame = new RegistrarEnfermedad();
@@ -168,6 +190,7 @@ public class Principal extends JFrame {
 		mnNewMenu_5.add(mntmNewMenuItem_4);
 		
 		JMenuItem mntmNewMenuItem_10 = new JMenuItem("Listar Enfermedad");
+		mntmNewMenuItem_10.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_10.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ListaEnfermedades dialog = new ListaEnfermedades(null);
@@ -179,9 +202,12 @@ public class Principal extends JFrame {
 		mnNewMenu_5.add(mntmNewMenuItem_10);
 		
 		JMenu mnNewMenu_2 = new JMenu("Cita");
+		mnNewMenu_2.setForeground(new Color(255, 128, 0));
+		mnNewMenu_2.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
 		menuBar.add(mnNewMenu_2);
 		
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("Hacer una Cita");
+		mntmNewMenuItem_2.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -195,6 +221,7 @@ public class Principal extends JFrame {
 		mnNewMenu_2.add(mntmNewMenuItem_2);
 		
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Listar Citas Pendientes");
+		mntmNewMenuItem_3.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ListCitas dialog = new ListCitas();
@@ -206,9 +233,12 @@ public class Principal extends JFrame {
 		mnNewMenu_2.add(mntmNewMenuItem_3);
 		
 		JMenu mnNewMenu_3 = new JMenu("Consulta");
+		mnNewMenu_3.setForeground(new Color(255, 128, 0));
+		mnNewMenu_3.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
 		menuBar.add(mnNewMenu_3);
 		
 		JMenuItem mntmNewMenuItem_6 = new JMenuItem("Hacer una Consulta");
+		mntmNewMenuItem_6.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegConsulta reg = new RegConsulta();
@@ -220,6 +250,7 @@ public class Principal extends JFrame {
 		mnNewMenu_3.add(mntmNewMenuItem_6);
 		
 		JMenuItem mntmNewMenuItem_7 = new JMenuItem("Listar Consultas");
+		mntmNewMenuItem_7.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ListConsultas list = new ListConsultas(null);
@@ -231,9 +262,12 @@ public class Principal extends JFrame {
 		mnNewMenu_3.add(mntmNewMenuItem_7);
 		
 		JMenu mnNewMenu_4 = new JMenu("Vacuna");
+		mnNewMenu_4.setForeground(new Color(255, 128, 0));
+		mnNewMenu_4.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
 		menuBar.add(mnNewMenu_4);
 		
 		JMenuItem mntmNewMenuItem_8 = new JMenuItem("Agregar Vacuna");
+		mntmNewMenuItem_8.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AgrVac vacunas = new AgrVac(null);
@@ -246,6 +280,7 @@ public class Principal extends JFrame {
 		mnNewMenu_4.add(mntmNewMenuItem_8);
 		
 		JMenuItem mntmNewMenuItem_9 = new JMenuItem("Listar Vacunas");
+		mntmNewMenuItem_9.setFont(new Font("Segoe Print", Font.BOLD, 14));
 		mntmNewMenuItem_9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ListVac vacunas = new ListVac(null);
@@ -257,9 +292,12 @@ public class Principal extends JFrame {
 		mnNewMenu_4.add(mntmNewMenuItem_9);
 		
 		JMenu menu = new JMenu("Admin");
+		menu.setForeground(new Color(128, 64, 0));
+		menu.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
 		menuBar.add(menu);
 		
 		JMenuItem menuItem = new JMenuItem("Registrar");
+		menuItem.setFont(new Font("Segoe UI", Font.BOLD, 20));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegAdmin reg = new RegAdmin();
@@ -271,9 +309,12 @@ public class Principal extends JFrame {
 		menu.add(menuItem);
 		
 		JMenu mnNewMenu_6 = new JMenu("Respaldo");
+		mnNewMenu_6.setFont(new Font("Segoe UI Black", Font.BOLD, 18));
+		mnNewMenu_6.setForeground(new Color(128, 64, 0));
 		menuBar.add(mnNewMenu_6);
 		
 		JMenuItem mntmNewMenuItem_12 = new JMenuItem("Crear Respaldo");
+		mntmNewMenuItem_12.setFont(new Font("Segoe UI", Font.BOLD, 20));
 		mntmNewMenuItem_12.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try 
@@ -300,7 +341,7 @@ public class Principal extends JFrame {
 			    }
 			    catch (IOException ioe)
 			    {
-			      System.out.println("Comunicación rechazada." + ioe.getMessage());
+			      System.out.println("Comunicaciï¿½n rechazada." + ioe.getMessage());
 			      System.exit(1);
 			    }
 			}
@@ -309,7 +350,18 @@ public class Principal extends JFrame {
 		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
+		contentPane.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel = new JPanel();
+		contentPane.add(panel, BorderLayout.CENTER);
+		panel.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("");
+		ImageIcon image = new ImageIcon(getClass().getResource("/white_background_image.jpeg"));
+		lblNewLabel.setIcon(image);
+		lblNewLabel.setBounds(0, 0, 1256, 606);
+		panel.add(lblNewLabel);
+		
 	}
 }
