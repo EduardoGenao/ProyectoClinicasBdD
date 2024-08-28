@@ -126,9 +126,60 @@ public class Clinica implements Serializable{
 	public void setMisVacuna_Dosis(ArrayList<Vacuna_Dosis> misVacuna_Dosis) {
 		this.misVacuna_Dosis = misVacuna_Dosis;
 	}
+	/*
 	public void modificarPaciente(Paciente miPaciente) {
 		int index = buscarIndexPacByCode(miPaciente.getPersona().getCedula());
 		misPacientes.set(index, miPaciente);
+	}
+	*/
+	public void modificarPaciente(Paciente miPaciente) {
+	    Connection connection = null;
+	    PreparedStatement stmtPersona = null;
+	    PreparedStatement stmtPaciente = null;
+
+	    try {
+	        // Establish a connection to your SQL Server database
+	        connection = DriverManager.getConnection(connectionUrl);
+
+	        // SQL to update persona data
+	        String updatePersona = "UPDATE persona SET nombre = ?, apellido = ?, fecha_de_nacimiento = ?, direccion = ?, sexo = ?, telefono_personal = ?, cedula = ? WHERE id_persona = ?";
+	        stmtPersona = connection.prepareStatement(updatePersona);
+	        stmtPersona.setString(1, miPaciente.getPersona().getNombre());
+	        stmtPersona.setString(2, miPaciente.getPersona().getApellido());
+	        //stmtPersona.setDate(3, java.sql.Date.valueOf(miPaciente.getPersona().getFechaDeNacim()));
+	        java.sql.Date sqlFechaDeNacim = new java.sql.Date(miPaciente.getPersona().getFechaDeNacim().getTime());
+	        stmtPersona.setDate(3, sqlFechaDeNacim);
+	        stmtPersona.setString(4, miPaciente.getPersona().getDireccion());
+	        stmtPersona.setString(5, miPaciente.getPersona().getSexo());
+	        stmtPersona.setString(6, miPaciente.getPersona().getTelefono());
+	        stmtPersona.setString(7, miPaciente.getPersona().getCedula());
+	        stmtPersona.setInt(8, miPaciente.getPersona().getId_persona());
+
+	        // Execute update for persona
+	        stmtPersona.executeUpdate();
+
+	        // SQL to update paciente data
+	        String updatePaciente = "UPDATE paciente SET sangre = ?, contacto_emergencia = ? WHERE id_paciente = ?";
+	        stmtPaciente = connection.prepareStatement(updatePaciente);
+	        stmtPaciente.setString(1, miPaciente.getSangre());
+	        stmtPaciente.setString(2, miPaciente.getContacto_emergencia());
+	        stmtPaciente.setInt(3, miPaciente.getIdPaciente());
+
+	        // Execute update for paciente
+	        stmtPaciente.executeUpdate();
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        // Close resources
+	        try {
+	            if (stmtPersona != null) stmtPersona.close();
+	            if (stmtPaciente != null) stmtPaciente.close();
+	            if (connection != null) connection.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
 	}
 	
 	public void modiMed(Medico misMedis) {
@@ -535,18 +586,17 @@ public class Clinica implements Serializable{
 	
 	public void RegistrarCita(Cita cita) {
 		//misCitas.add(aux);		
-		String sql = "INSERT INTO cita (nombre, fecha_cita, asistencia, id_secretario, id_medico, id_paciente, id_tipo_cita) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO cita (fecha_cita, asistencia, id_secretario, id_medico, id_paciente, id_tipo_cita) VALUES ( ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(connectionUrl);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
              
-            pstmt.setString(1, cita.getNombre());
-            pstmt.setTimestamp(2, new java.sql.Timestamp(cita.getFecha_cita().getTime()));
-            pstmt.setBoolean(3, cita.isAsistencia());
-            pstmt.setInt(4, cita.getSecretario().getId_secretario());
-            pstmt.setInt(5, cita.getId_medico().getId_medico());
-            pstmt.setInt(6, cita.getPaciente().getIdPaciente());
-            pstmt.setInt(7, Integer.parseInt(cita.getId_tipo_cita().getId_tipo()));
+            pstmt.setTimestamp(1, new java.sql.Timestamp(cita.getFecha_cita().getTime()));
+            pstmt.setBoolean(2, cita.isAsistencia());
+            pstmt.setInt(3, cita.getSecretario().getId_secretario());
+            pstmt.setInt(4, cita.getId_medico().getId_medico());
+            pstmt.setInt(5, cita.getPaciente().getIdPaciente());
+            pstmt.setInt(6, Integer.parseInt(cita.getId_tipo_cita().getId_tipo()));
 
             pstmt.executeUpdate();
             System.out.println("Cita registered successfully!");
@@ -872,15 +922,45 @@ public class Clinica implements Serializable{
 		}
 	}*/
 	
-	public boolean confirmLogin(String text, String text2) {
-		boolean login = false;
-		for (Cuenta user : misAdministradores) {
-			if(user.getUsuario().equals(text) && user.getContrasena().equals(text2)){
-				loginAdministrador = user;
-				login = true;
-			}
-		}
-		return login;
+	public boolean confirmLogin(String usuario, String contrasena) {
+	    boolean login = false;
+	    Connection connection = null;
+	    PreparedStatement stmt = null;
+	    ResultSet rs = null;
+	    
+	    try {
+	        // Establish a connection (Make sure the connection details are correct)
+	        String url = "jdbc:sqlserver://localhost;databaseName=yourDatabase";
+	        String user = "yourUsername";
+	        String password = "yourPassword";
+	        connection = DriverManager.getConnection(connectionUrl);
+	        
+	        // Query to check if the provided username and password match any record
+	        String query = "SELECT COUNT(*) FROM cuenta WHERE usuario = ? AND contrasena = ?";
+	        stmt = connection.prepareStatement(query);
+	        stmt.setString(1, usuario);
+	        stmt.setString(2, contrasena);
+	        
+	        rs = stmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            // If the count is greater than 0, credentials are valid
+	            login = rs.getInt(1) > 0;
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        // Close resources
+	        try {
+	            if (rs != null) rs.close();
+	            if (stmt != null) stmt.close();
+	            if (connection != null) connection.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	    
+	    return login;
 	}
 
 

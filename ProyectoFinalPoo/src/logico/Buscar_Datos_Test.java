@@ -127,33 +127,34 @@ public class Buscar_Datos_Test {
     }
 	
 	
-	public static void createPersona(Persona persona) throws SQLException {
-        String insertPersonaSQL = "INSERT INTO persona (nombre, apellido, fecha_de_nacimiento, direccion, sexo, telefono_personal, cedula) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        int generatedId = 0;
+	public static int createPersona(Persona persona) throws SQLException {
+	    String insertPersonaSQL = "INSERT INTO persona (nombre, apellido, fecha_de_nacimiento, direccion, sexo, telefono_personal, cedula) VALUES (?, ?, ?, ?, ?, ?, ?)";
+	    int generatedId = 0;
 
-        try (Connection connection = DriverManager.getConnection(connectionUrl);
-             PreparedStatement pstmt = connection.prepareStatement(insertPersonaSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
+	    try (Connection connection = DriverManager.getConnection(connectionUrl);
+	         PreparedStatement pstmt = connection.prepareStatement(insertPersonaSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setString(1, persona.getNombre());
-            pstmt.setString(2, persona.getApellido());
-            pstmt.setDate(3, new java.sql.Date(persona.getFechaDeNacim().getTime()));
-            pstmt.setString(4, persona.getDireccion());
-            pstmt.setString(5, persona.getSexo());
-            pstmt.setString(6, persona.getTelefono());
-            pstmt.setString(7, persona.getCedula());
+	        pstmt.setString(1, persona.getNombre());
+	        pstmt.setString(2, persona.getApellido());
+	        pstmt.setDate(3, new java.sql.Date(persona.getFechaDeNacim().getTime()));
+	        pstmt.setString(4, persona.getDireccion());
+	        pstmt.setString(5, persona.getSexo());
+	        pstmt.setString(6, persona.getTelefono());
+	        pstmt.setString(7, persona.getCedula());
 
-            int affectedRows = pstmt.executeUpdate();
+	        int affectedRows = pstmt.executeUpdate();
 
-            if (affectedRows > 0) {
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        generatedId = rs.getInt(1);
-                    }
-                }
-            }
-        }
-        
-    }
+	        if (affectedRows > 0) {
+	            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+	                if (rs.next()) {
+	                    generatedId = rs.getInt(1); // Obtiene el id_persona generado
+	                }
+	            }
+	        }
+	    }
+
+	    return generatedId; // Retorna el id_persona generado
+	}
 
     public static void createPaciente(Paciente paciente) throws SQLException {
         String insertPacienteSQL = "INSERT INTO paciente (sangre, contacto_emergencia, id_persona) VALUES (?, ?, ?)";
@@ -360,7 +361,7 @@ public class Buscar_Datos_Test {
 	 
 	 public static ArrayList<Cita> getCitas() {
 		    ArrayList<Cita> citas = new ArrayList<>();
-		    String query = "SELECT c.id_cita, c.nombre AS cita_nombre, c.fecha_cita, c.asistencia, c.id_medico, c.id_tipo_cita, c.id_paciente, "
+		    String query = "SELECT c.id_cita, c.fecha_cita, c.asistencia, c.id_medico, c.id_tipo_cita, c.id_paciente, "
 		                 + "m.telefono_trabajo, m.id_especialidad, m.id_cuenta AS medico_id_cuenta, m.id_persona AS medico_id_persona, "
 		                 + "p_sangre.sangre, p_sangre.contacto_emergencia, p_sangre.id_persona AS paciente_id_persona, "
 		                 + "p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, p.fecha_de_nacimiento AS paciente_fecha, "
@@ -385,7 +386,7 @@ public class Buscar_Datos_Test {
 
 		        while (resultSet.next()) {
 		            String idCita = resultSet.getString("id_cita");
-		            String citaNombre = resultSet.getString("cita_nombre");
+		            
 		            Date fechaCita = resultSet.getDate("fecha_cita");
 		            boolean asistencia = resultSet.getBoolean("asistencia");
 
@@ -461,7 +462,7 @@ public class Buscar_Datos_Test {
 		            Tipo_Cita tipoCita = new Tipo_Cita(tipoCitaId, tipoCitaNombre);
 
 		            // Create Cita object with Tipo_Cita
-		            Cita cita = new Cita(idCita, citaNombre, fechaCita, asistencia, medico, tipoCita, paciente, secretario);
+		            Cita cita = new Cita(idCita, fechaCita, asistencia, medico, tipoCita, paciente, secretario);
 		            citas.add(cita);
 		        }
 		    } catch (SQLException e) {

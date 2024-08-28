@@ -105,12 +105,11 @@ public class ListCitas extends JDialog {
 		row = new Object[model.getColumnCount()];
 		for(int i = 0; i < Clinica.getInstance().getMisCitas().size();i++) {
 		 row[0] = i;
-		 row[1] = Clinica.getInstance().getMisCitas().get(i).getNombre();
-		 row[2] = Clinica.getInstance().getMisCitas().get(i).getId_medico().getId_medico();
-		 row[3] = Clinica.getInstance().getMisCitas().get(i).getId_tipo_cita();
+		 row[1] = Clinica.getInstance().getMisCitas().get(i).getId_medico().getId_medico();
+		 row[2] = Clinica.getInstance().getMisCitas().get(i).getId_tipo_cita();
 		 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
 		 String fecha = dateFormat.format(Clinica.getInstance().getMisCitas().get(i).getFecha_cita());
-		 row[4] = fecha;
+		 row[3] = fecha;
 		 
 		 model.addRow(row);
 		}

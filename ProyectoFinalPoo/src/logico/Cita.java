@@ -10,7 +10,6 @@ public class Cita implements Serializable{
 	 * 
 	 */
 	private String id_cita;
-	private String nombre;
 	private Date fecha_cita;
 	private boolean asistencia;
 	private Medico id_medico;
@@ -20,11 +19,10 @@ public class Cita implements Serializable{
 	
 	
 
-	public Cita(String id_cita, String nombre, Date fecha_cita, boolean asistencia, Medico id_medico,
+	public Cita(String id_cita, Date fecha_cita, boolean asistencia, Medico id_medico,
 			Tipo_Cita id_tipo_cita, Paciente paciente, Secretario secretario) {
 		super();
 		this.id_cita = id_cita;
-		this.nombre = nombre;
 		this.fecha_cita = fecha_cita;
 		this.asistencia = asistencia;
 		this.id_medico = id_medico;
@@ -43,18 +41,6 @@ public class Cita implements Serializable{
 
 	public void setId_cita(String id_cita) {
 		this.id_cita = id_cita;
-	}
-
-
-
-	public String getNombre() {
-		return nombre;
-	}
-
-
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
 	}
 
 

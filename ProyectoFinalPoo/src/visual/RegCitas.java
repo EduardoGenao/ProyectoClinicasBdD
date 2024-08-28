@@ -34,7 +34,6 @@ import javax.swing.JRadioButton;
 public class RegCitas extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField txtNombre;
 	private JTextField txtPaciente;
 	private JTextField txtDoctor;
 	private JSpinner spnTiempo;
@@ -77,11 +76,6 @@ public class RegCitas extends JFrame {
 		lblNewLabel.setBounds(19, 151, 137, 20);
 		contentPane.add(lblNewLabel);
 		
-		JLabel lblNombre = new JLabel("Nombre:");
-		lblNombre.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblNombre.setBounds(19, 95, 81, 20);
-		contentPane.add(lblNombre);
-		
 		JLabel lblCedula = new JLabel("Secretario (Cedula):");
 		lblCedula.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblCedula.setBounds(19, 219, 137, 20);
@@ -106,11 +100,6 @@ public class RegCitas extends JFrame {
 		lblFecha.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblFecha.setBounds(15, 330, 81, 20);
 		contentPane.add(lblFecha);
-		
-		txtNombre = new JTextField();
-		txtNombre.setBounds(148, 92, 255, 26);
-		contentPane.add(txtNombre);
-		txtNombre.setColumns(10);
 		
 		txtPaciente = new JTextField();
 		txtPaciente.setEditable(false);
@@ -142,7 +131,6 @@ public class RegCitas extends JFrame {
 					String tempPac = Clinica.getInstance().getPacienteCedula();
 					Paciente pacienteTemp = Clinica.getInstance().buscarPaciente(tempPac);
 					txtPaciente.setText(tempPac);
-					txtNombre.setText(pacienteTemp.getPersona().getNombre());
 					Clinica.getInstance().setPacienteCedula("");
 				}
 			}
@@ -243,7 +231,7 @@ public class RegCitas extends JFrame {
 		btnRegistrar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				if(txtPaciente.getText().isEmpty() || txtNombre.getText().isEmpty() ||txtDoctor.getText().isEmpty() || txtTipo.getText().isEmpty() || txtSecretario.getText().isEmpty()) {
+				if(txtPaciente.getText().isEmpty() || txtDoctor.getText().isEmpty() || txtTipo.getText().isEmpty() || txtSecretario.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Disculpe, parece que faltan algunos datos en la creacion de una nueva consulta.\n Por favor, llene los datos que faltan e intenta la registracion de nuevo.\n", "Datos Ausentes", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else {
@@ -255,7 +243,7 @@ public class RegCitas extends JFrame {
 					Secretario secretario = Clinica.getInstance().buscarSecretario(txtSecretario.getText());
 					Tipo_Cita tipo_cita = Clinica.getInstance().getTipoCitaById(txtTipo.getText());
 					// Crear id_cita
-					Cita aux = new Cita(txtCita.getText(), txtNombre.getText(), tiempo, btnAsistencia.isSelected(), medico, tipo_cita, paciente, secretario);
+					Cita aux = new Cita(txtCita.getText(), tiempo, btnAsistencia.isSelected(), medico, tipo_cita, paciente, secretario);
 					//Cita aux = new Cita(id_cita, nombre, fecha_cita, asistencia, id_medico, id_tipo_cita, paciente, secretario)
 					
 					
@@ -274,7 +262,6 @@ public class RegCitas extends JFrame {
 		
 	}
 	private void clean() {
-		txtNombre.setText("");
 		txtPaciente.setText("");
 		txtDoctor.setText("");
 		txtTipo.setText("");

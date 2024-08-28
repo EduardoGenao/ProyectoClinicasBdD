@@ -140,6 +140,20 @@ public class Principal extends JFrame {
 		});
 		mnNewMenu_1.add(mntmNewMenuItem_11);
 		
+		JMenu mnNewMenu_7 = new JMenu("Secretario");
+		menuBar.add(mnNewMenu_7);
+		
+		JMenuItem mntmNewMenuItem_13 = new JMenuItem("Listar Secretario");
+		mntmNewMenuItem_13.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListSecretario list = new ListSecretario();
+				list.setModal(true);
+				list.setLocationRelativeTo(null);
+				list.setVisible(true);
+			}
+		});
+		mnNewMenu_7.add(mntmNewMenuItem_13);
+		
 		JMenu mnNewMenu_5 = new JMenu("Enfermedad");
 		menuBar.add(mnNewMenu_5);
 		

@@ -2,6 +2,7 @@ package visual;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.TextField;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -24,7 +25,11 @@ import java.util.Calendar;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import javax.swing.DefaultComboBoxModel;
@@ -34,41 +39,43 @@ import javax.swing.JTextArea;
 public class RegPaciente extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
+	private JTextField txtPersonaID = new JTextField();
+	private JTextField txtPacienteID= new JTextField();
 	private JTextField txtNombre;
 	private JTextField txtCedula;
 	private JTextField txtTelefono;
 	private JTextField txtDir;
-	private JTextField txtContactoEmer;
 	private JTextField txtNumeroEmer;
 	private String sexo = "H";
 	JSpinner spnEdad;
 	JComboBox<String> cbxSexo;
 	private Paciente miPaciente = null;
 	private Persona miPersona = null;
-	private JTextArea txtAlergias;
 	private JTextField txtApellido;
-	private JTextField txtPersonaID;
-	private JTextField txtPacienteID;
 	JComboBox<String> cbxSangre;
+	int nuevoPersonaID = 0;
+	static String connectionUrl =
+            "jdbc:sqlserver://192.168.100.118:1433;"
+                    + "database=clinica_stanley_eduardo;"
+                    + "user=s.gomez;" //TU USER
+                    + "password=Headphone1130Jack;" //TU CLAVE
+                    + "encrypt=true;"
+                    + "trustServerCertificate=true;"
+                    + "loginTimeout=30;";
 	
 
-	/**
-	 * Launch the application.
-	 */
-	/*
+	
 	 public static void main(String[] args) {
 	        try {
-	            RegPaciente dialog = new RegPaciente(null);
+	            RegPaciente dialog = new RegPaciente(null, null);
 	            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	            dialog.setVisible(true);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
 	    }
-	   */ 
-	/**
-	 * Create the dialog.
-	 */
+	   
+	
 	public RegPaciente(Paciente paciente, Persona persona) {
 		setTitle("Registrar Paciente");
 		miPaciente = paciente;	
@@ -81,7 +88,7 @@ public class RegPaciente extends JDialog {
 		else {
 			setTitle("Modificar Paciente");
 		}
-		setBounds(100, 100, 960, 589);
+		setBounds(100, 100, 960, 302);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -94,72 +101,63 @@ public class RegPaciente extends JDialog {
 			panel.setLayout(null);
 			
 			txtNombre = new JTextField();
-			txtNombre.setBounds(30, 208, 148, 20);
+			txtNombre.setBounds(26, 42, 148, 20);
 			panel.add(txtNombre);
 			txtNombre.setColumns(10);
 			
 			JLabel lblNewLabel = new JLabel("Nombre:");
-			lblNewLabel.setBounds(30, 193, 117, 14);
+			lblNewLabel.setBounds(26, 27, 117, 14);
 			panel.add(lblNewLabel);
 			
 			txtCedula = new JTextField();
 			txtCedula.setColumns(10);
-			txtCedula.setBounds(30, 328, 148, 20);
+			txtCedula.setBounds(26, 162, 148, 20);
 			panel.add(txtCedula);
 			
 			JLabel lblCedula = new JLabel("Cedula:");
-			lblCedula.setBounds(30, 313, 117, 14);
+			lblCedula.setBounds(26, 147, 117, 14);
 			panel.add(lblCedula);
 			
 			txtTelefono = new JTextField();
 			txtTelefono.setColumns(10);
-			txtTelefono.setBounds(465, 208, 168, 20);
+			txtTelefono.setBounds(461, 42, 168, 20);
 			panel.add(txtTelefono);
 			
 			JLabel lblNumeroDeTelefono = new JLabel("Numero de Telefono:");
-			lblNumeroDeTelefono.setBounds(465, 193, 174, 14);
+			lblNumeroDeTelefono.setBounds(461, 27, 174, 14);
 			panel.add(lblNumeroDeTelefono);
 			
 			txtDir = new JTextField();
 			txtDir.setColumns(10);
-			txtDir.setBounds(223, 328, 168, 20);
+			txtDir.setBounds(219, 162, 168, 20);
 			panel.add(txtDir);
 			
 			JLabel lblDireccion = new JLabel("Direccion:");
-			lblDireccion.setBounds(223, 313, 117, 14);
+			lblDireccion.setBounds(219, 147, 117, 14);
 			panel.add(lblDireccion);
 			
 			SpinnerDateModel modelo = new SpinnerDateModel();
 	        spnEdad = new JSpinner(new SpinnerDateModel(new Date(), null, new Date(), Calendar.DAY_OF_MONTH));
 	        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spnEdad, "dd/MM/yyyy");
 	        spnEdad.setEditor(dateEditor);
-	        spnEdad.setBounds(223, 208, 168, 20);
+	        spnEdad.setBounds(219, 42, 168, 20);
 	        panel.add(spnEdad);
 			
 			JLabel lblNewLabel_1 = new JLabel("Fecha de Nacimiento:");
-			lblNewLabel_1.setBounds(223, 193, 168, 14);
+			lblNewLabel_1.setBounds(219, 27, 168, 14);
 			panel.add(lblNewLabel_1);
 			
 			JLabel lblNewLabel_2 = new JLabel("Sexo:");
-			lblNewLabel_2.setBounds(223, 253, 46, 14);
+			lblNewLabel_2.setBounds(219, 87, 46, 14);
 			panel.add(lblNewLabel_2);
 			
-			txtContactoEmer = new JTextField();
-			txtContactoEmer.setBounds(465, 268, 168, 20);
-			panel.add(txtContactoEmer);
-			txtContactoEmer.setColumns(10);
-			
-			JLabel lblNewLabel_3 = new JLabel("Contacto de Emergencia:");
-			lblNewLabel_3.setBounds(465, 253, 168, 14);
-			panel.add(lblNewLabel_3);
-			
 			JLabel lblNumeroDeCont = new JLabel("Numero de Contacto de ER:");
-			lblNumeroDeCont.setBounds(465, 313, 168, 14);
+			lblNumeroDeCont.setBounds(461, 87, 168, 14);
 			panel.add(lblNumeroDeCont);
 			
 			txtNumeroEmer = new JTextField();
 			txtNumeroEmer.setColumns(10);
-			txtNumeroEmer.setBounds(465, 328, 168, 20);
+			txtNumeroEmer.setBounds(461, 102, 168, 20);
 			panel.add(txtNumeroEmer);
 			
 			String[] sexos = {"Hombre", "Mujer"};
@@ -179,57 +177,27 @@ public class RegPaciente extends JDialog {
 					}
 				}
 			});
-			cbxSexo.setBounds(223, 268, 168, 20);
+			cbxSexo.setBounds(219, 102, 168, 20);
 			panel.add(cbxSexo);
 			
-			JLabel lblNewLabel_4 = new JLabel("Alergias:");
-			lblNewLabel_4.setBounds(30, 383, 117, 14);
-			panel.add(lblNewLabel_4);
-			
-			txtAlergias = new JTextArea();
-			txtAlergias.setBounds(30, 407, 861, 99);
-			panel.add(txtAlergias);
-			
 			txtApellido = new JTextField();
-			txtApellido.setBounds(30, 268, 148, 20);
+			txtApellido.setBounds(26, 102, 148, 20);
 			panel.add(txtApellido);
 			txtApellido.setColumns(10);
 			
 			JLabel lblNewLabel_5 = new JLabel("Apellido");
-			lblNewLabel_5.setBounds(30, 253, 46, 14);
+			lblNewLabel_5.setBounds(26, 87, 46, 14);
 			panel.add(lblNewLabel_5);
-			
-			txtPersonaID = new JTextField();
 			String personaIDString = Buscar_Datos_Test.getHighestUnoccupiedPersonaId();
-			txtPersonaID.setText(personaIDString);
-			txtPersonaID.setEditable(false);
-			txtPersonaID.setBounds(30, 37, 148, 20);
-			panel.add(txtPersonaID);
-			txtPersonaID.setColumns(10);
-			
-			JLabel lblNewLabel_6 = new JLabel("Persona ID:");
-			lblNewLabel_6.setBounds(30, 22, 117, 14);
-			panel.add(lblNewLabel_6);
-			
-			txtPacienteID = new JTextField();
 			String pacienteIDString = Buscar_Datos_Test.getHighestUnoccupiedPacienteId();
-			txtPacienteID.setText(pacienteIDString);
-			txtPacienteID.setEditable(false);
-			txtPacienteID.setBounds(223, 37, 148, 20);
-			panel.add(txtPacienteID);
-			txtPacienteID.setColumns(10);
-			
-			JLabel lblNewLabel_7 = new JLabel("Paciente ID:");
-			lblNewLabel_7.setBounds(223, 22, 93, 14);
-			panel.add(lblNewLabel_7);
 			
 			cbxSangre = new JComboBox(new Object[]{});
 			cbxSangre.setModel(new DefaultComboBoxModel(new String[] {"A+", "B+", "AB+", "O+", "A-", "B-", "AB-", "O-"}));
-			cbxSangre.setBounds(698, 208, 168, 20);
+			cbxSangre.setBounds(694, 42, 168, 20);
 			panel.add(cbxSangre);
 			
 			JLabel lblNewLabel_8 = new JLabel("Sangre:");
-			lblNewLabel_8.setBounds(698, 193, 78, 14);
+			lblNewLabel_8.setBounds(694, 27, 78, 14);
 			panel.add(lblNewLabel_8);
 		}
 		{
@@ -242,7 +210,7 @@ public class RegPaciente extends JDialog {
 					public void actionPerformed(ActionEvent e) {
 						Date fechaNacim = (Date) spnEdad.getValue();
 						if (txtNombre.getText().isEmpty() || txtCedula.getText().isEmpty() || txtTelefono.getText().isEmpty() || txtDir.getText().isEmpty() || 
-							    txtContactoEmer.getText().isEmpty() || txtNumeroEmer.getText().isEmpty() || (sexo != "H" && sexo != "M")) {
+							    txtNumeroEmer.getText().isEmpty() || (sexo != "H" && sexo != "M")) {
 							JOptionPane.showMessageDialog(null, "Disculpe, parece que faltan algunos datos en la registracion del paciente. Por favor, llene los datos que faltan e intenta la registracion de nuevo.\n", "Datos Ausentes", JOptionPane.INFORMATION_MESSAGE);
 						}
 						else {
@@ -250,19 +218,23 @@ public class RegPaciente extends JDialog {
 									SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 									String fechaNacimientoStr = dateFormat.format(fechaNacim);
 								
-									if(txtAlergias.getText().isEmpty())
-										txtAlergias.setText("N/A");
+									
 									//miPaciente = new Paciente(txtNombre.getText(), txtCedula.getText(), txtDir.getText(), fechaNacim, sexo, txtTelefono.getText(), false, txtContactoEmer.getText(), txtNumeroEmer.getText(), txtAlergias.getText());
+									txtPersonaID.setText("5");
 									miPersona = new Persona(Integer.parseInt(txtPersonaID.getText()), txtNombre.getText(), txtApellido.getText(), fechaNacim, txtDir.getText(), sexo, txtTelefono.getText(), txtCedula.getText());
 									try {
-										Buscar_Datos_Test.createPersona(miPersona);
+										nuevoPersonaID = Buscar_Datos_Test.createPersona(miPersona);
 									} catch (SQLException e1) {
 										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
+									txtPacienteID.setText("5");
 									miPaciente = new Paciente(Integer.parseInt(txtPacienteID.getText()), (String) cbxSangre.getSelectedItem(), txtNumeroEmer.getText(), miPersona);
+									miPaciente.getPersona().setId_persona(nuevoPersonaID);
+									System.out.println("miPaciente Persona id is " + miPaciente.getPersona().getId_persona());
 									try {
 										Buscar_Datos_Test.createPaciente(miPaciente);
+										System.out.println("Paciente creado!");
 									} catch (SQLException e1) {
 										// TODO Auto-generated catch block
 										e1.printStackTrace();
@@ -278,7 +250,6 @@ public class RegPaciente extends JDialog {
 									miPaciente.getPersona().setTelefono(txtTelefono.getText());
 									miPaciente.getPersona().setDireccion(txtDir.getText());
 									miPaciente.getPersona().setFechaDeNacim(fechaNacim);
-									//miPaciente.setContactoEmergencia(txtContactoEmer.getText());
 									miPaciente.setContacto_emergencia(txtNumeroEmer.getText());
 									miPaciente.getPersona().setSexo(sexo);
 									//miPaciente.setAlergias(txtAlergias.getText());
@@ -307,25 +278,31 @@ public class RegPaciente extends JDialog {
 			}
 		}
 		loadPaciente();
-	}
+	
+}
 
 
 	public void loadPaciente() {
 		if(miPaciente != null) {
-			//txtNombre.setText(miPaciente.getNombre());
-			//txtCedula.setText(miPaciente.getCedula());
-			//txtTelefono.setText(miPaciente.getTelefono());
-			//txtDir.setText(miPaciente.getDireccion());
-			//txtContactoEmer.setText(miPaciente.getContactoEmergencia());
+			txtPacienteID.setText(String.valueOf(miPaciente.getIdPaciente()));
+			txtPersonaID.setText(String.valueOf(miPaciente.getPersona().getId_persona()));
+			txtNombre.setText(miPaciente.getPersona().getNombre());
+			txtApellido.setText(miPaciente.getPersona().getApellido());
+			txtCedula.setText(miPaciente.getPersona().getCedula());
+			txtTelefono.setText(miPaciente.getPersona().getTelefono());
+			txtDir.setText(miPaciente.getPersona().getDireccion());
+			txtNumeroEmer.setText(miPaciente.getContacto_emergencia());
+			
 			//txtNumeroEmer.setText(miPaciente.getNumEmergencia());
 			//txtAlergias.setText(miPaciente.getAlergias());
 			//Falta esta parte de ser arreglado
-			//if(miPaciente.getSexo()=='H')
-			//	cbxSexo.setSelectedItem("Hombre");
-			//if(miPaciente.getSexo()=='M')
-			//	cbxSexo.setSelectedItem("Mujer");
+			if(miPaciente.getPersona().getSexo() =="H")
+				cbxSexo.setSelectedItem("Hombre");
+			if(miPaciente.getPersona().getSexo() =="M")
+				cbxSexo.setSelectedItem("Mujer");
 			
-			//spnEdad.setValue(miPaciente.getFechaDeNacim());
+			spnEdad.setValue(miPaciente.getPersona().getFechaDeNacim());
+			cbxSangre.setSelectedItem(miPaciente.getSangre());
 			
 		}
 		
@@ -334,14 +311,64 @@ public class RegPaciente extends JDialog {
 
 	private void clean() {
 		txtNombre.setText("");
+		txtApellido.setText("");
 		txtCedula.setText("");
 		txtTelefono.setText("");
 		txtDir.setText("");
-		txtContactoEmer.setText("");
 		txtNumeroEmer.setText("");
 		cbxSexo.setSelectedItem("");
 		spnEdad.setValue(new Date());
-		txtAlergias.setText("");
 		miPaciente = null;
 	}
+	public static String getHighestUnoccupiedPersonaId() throws SQLException {
+	    String query = "SELECT MIN(id_persona + 1) AS next_id "
+	                 + "FROM persona p "
+	                 + "WHERE NOT EXISTS (SELECT 1 FROM persona WHERE id_persona = p.id_persona + 1)";
+	    Connection conn = null;
+	    Statement stmt = null;
+	    ResultSet rs = null;
+	    String nextId = "1"; // Default to "1" if no IDs exist in the table
+
+	    try {
+	        conn = DriverManager.getConnection(connectionUrl);
+	        stmt = conn.createStatement();
+	        rs = stmt.executeQuery(query);
+	        if (rs.next()) {
+	            nextId = rs.getString("next_id");
+	        }
+	    } finally {
+	        if (rs != null) rs.close();
+	        if (stmt != null) stmt.close();
+	        if (conn != null) conn.close();
+	    }
+
+	    return nextId;
+	}
+
+	public static String getHighestUnoccupiedPacienteId() throws SQLException {
+	    String query = "SELECT MIN(id_paciente + 1) AS next_id "
+	                 + "FROM paciente p "
+	                 + "WHERE NOT EXISTS (SELECT 1 FROM paciente WHERE id_paciente = p.id_paciente + 1)";
+	    Connection conn = null;
+	    Statement stmt = null;
+	    ResultSet rs = null;
+	    String nextId = "1"; // Default to "1" if no IDs exist in the table
+
+	    try {
+	        conn = DriverManager.getConnection(connectionUrl);
+	        stmt = conn.createStatement();
+	        rs = stmt.executeQuery(query);
+	        if (rs.next()) {
+	            nextId = rs.getString("next_id");
+	        }
+	    } finally {
+	        if (rs != null) rs.close();
+	        if (stmt != null) stmt.close();
+	        if (conn != null) conn.close();
+	    }
+
+	    return nextId;
+	}
+	
+	
 }

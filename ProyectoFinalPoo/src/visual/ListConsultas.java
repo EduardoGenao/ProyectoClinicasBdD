@@ -11,6 +11,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import logico.Clinica;
 import logico.Consulta;
 import logico.Paciente;
@@ -42,17 +48,17 @@ public class ListConsultas extends JDialog {
 	/**
 	 * Launch the application.
 	 */
-	/*
+	
 	public static void main(String[] args) {
 		try {
-			ListConsultas dialog = new ListConsultas();
+			ListConsultas dialog = new ListConsultas(null);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	*/
+	
 	/**
 	 * Create the dialog.
 	 */
@@ -147,65 +153,66 @@ public class ListConsultas extends JDialog {
 	}
 
 	public static void loadConsultas(int seleccion) {
-		modelo.setRowCount(0);
-		fila = new Object[modelo.getColumnCount()];
-		
-		if(miPaciente == null) {
-			for(Consulta aux : Clinica.getInstance().getMisConsultas()) {
-				fila[0] = aux.getId_consulta();
-				fila[1] = aux.getPaciente().getPersona().getNombre();
-				fila[2] = aux.getMedico().getPersona().getNombre();
-				fila[3] = aux.getDescripcion();
-				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
-				String fechaOcurrida = dateFormat.format(aux.getFechaConsulta());
-				fila[4] = fechaOcurrida;
-				if(aux.getDiagnostico() == null) 
-					fila[5] = "N/A";
-				else
-					fila[5] = aux.getDiagnostico().getNombre();
-				fila[6] = aux.getTratamiento();
-				if(aux.getVacuna_Dosis().getVacuna() == null)
-					fila[7] = "N/A";
-				else
-					fila[7] = aux.getVacuna_Dosis().getVacuna().getNombre();
-				modelo.addRow(fila);
-			}
-		}
-		else {
-			for(Consulta aux : Clinica.getInstance().getMisConsultas()) {
-				if(aux.getPaciente().getPersona().getCedula() == miPaciente.getPersona().getCedula()) {
-					fila[0] = aux.getId_consulta();
-					fila[1] = aux.getPaciente().getPersona().getNombre();
-					fila[2] = aux.getMedico().getPersona().getNombre();
-					fila[3] = aux.getDescripcion();
-					SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
-					String fechaOcurrida = dateFormat.format(aux.getFechaConsulta());
-					fila[4] = fechaOcurrida;
-					if(aux.getDiagnostico() == null) 
-						fila[5] = "N/A";
-					else
-						fila[5] = aux.getDiagnostico().getNombre();
-					fila[6] = aux.getTratamiento();
-					if(aux.getVacuna_Dosis().getVacuna() == null)
-						fila[7] = "N/A";
-					else
-						fila[7] = aux.getVacuna_Dosis().getVacuna().getNombre();
-					modelo.addRow(fila);
-				}
-			}
-		}
-		
-		table.setModel(modelo);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.getTableHeader().setReorderingAllowed(false);
-		TableColumnModel columnModel = table.getColumnModel();
-		columnModel.getColumn(0).setPreferredWidth(110);
-		columnModel.getColumn(1).setPreferredWidth(120);
-		columnModel.getColumn(2).setPreferredWidth(120);
-		columnModel.getColumn(3).setPreferredWidth(220);
-		columnModel.getColumn(4).setPreferredWidth(120);
-		columnModel.getColumn(5).setPreferredWidth(120);
-		columnModel.getColumn(6).setPreferredWidth(220);
-		columnModel.getColumn(7).setPreferredWidth(120);
+	    modelo.setRowCount(0);
+	    fila = new Object[modelo.getColumnCount()];
+
+	    // Your database connection details
+	    String connectionUrl = "jdbc:sqlserver://192.168.100.118:1433;"
+                + "database=clinica_stanley_eduardo;"
+                + "user=s.gomez;" //TU USER
+                + "password=Headphone1130Jack;" //TU CLAVE
+                + "encrypt=true;"
+                + "trustServerCertificate=true;"
+                + "loginTimeout=30;";
+
+	    try (Connection connection = DriverManager.getConnection(connectionUrl)) {
+	        String sql = "SELECT c.id_consulta, p.nombre AS paciente_nombre, m.nombre AS medico_nombre, c.descripcion, c.fecha_consulta, "
+	                   + "e.nombre AS diagnostico_nombre, c.tratamiento, v.nombre AS vacuna_nombre "
+	                   + "FROM consulta c "
+	                   + "JOIN paciente pa ON c.id_paciente = pa.id_paciente "
+	                   + "JOIN persona p ON pa.id_persona = p.id_persona "
+	                   + "JOIN medico me ON c.id_medico = me.id_medico "
+	                   + "JOIN persona m ON me.id_persona = m.id_persona "
+	                   + "LEFT JOIN enfermedad e ON c.id_enfermedad = e.id_enfermedad "
+	                   + "LEFT JOIN vacuna_dosis vd ON c.id_vacuna_dosis = vd.id_vacuna_dosis "
+	                   + "LEFT JOIN vacuna v ON vd.id_vacuna = v.id_vacuna "
+	                   + "WHERE pa.id_paciente = ?"; // Filter by id_paciente or change to pa.id_persona if needed
+
+	        PreparedStatement pstmt = connection.prepareStatement(sql);
+	        pstmt.setInt(1, miPaciente.getIdPaciente()); // Set the paciente ID parameter
+
+	        ResultSet rs = pstmt.executeQuery();
+
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+
+	        while (rs.next()) {
+	            fila[0] = rs.getInt("id_consulta");
+	            fila[1] = rs.getString("paciente_nombre");
+	            fila[2] = rs.getString("medico_nombre");
+	            fila[3] = rs.getString("descripcion");
+	            fila[4] = dateFormat.format(rs.getTimestamp("fecha_consulta"));
+	            fila[5] = rs.getString("diagnostico_nombre") != null ? rs.getString("diagnostico_nombre") : "N/A";
+	            fila[6] = rs.getString("tratamiento");
+	            fila[7] = rs.getString("vacuna_nombre") != null ? rs.getString("vacuna_nombre") : "N/A";
+
+	            modelo.addRow(fila);
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    table.setModel(modelo);
+	    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+	    table.getTableHeader().setReorderingAllowed(false);
+	    TableColumnModel columnModel = table.getColumnModel();
+	    columnModel.getColumn(0).setPreferredWidth(110);
+	    columnModel.getColumn(1).setPreferredWidth(120);
+	    columnModel.getColumn(2).setPreferredWidth(120);
+	    columnModel.getColumn(3).setPreferredWidth(220);
+	    columnModel.getColumn(4).setPreferredWidth(120);
+	    columnModel.getColumn(5).setPreferredWidth(120);
+	    columnModel.getColumn(6).setPreferredWidth(220);
+	    columnModel.getColumn(7).setPreferredWidth(120);
 	}
 }
