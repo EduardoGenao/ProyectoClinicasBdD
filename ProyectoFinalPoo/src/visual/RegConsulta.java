@@ -283,7 +283,11 @@ public class RegConsulta extends JDialog {
 					Paciente paciente = Clinica.getInstance().buscarPaciente(txtPaciente.getText());
 					Medico medico = Clinica.getInstance().buscarMedico(txtCedMedico.getText());
 					Secretario secretario = Clinica.getInstance().buscarSecretario(txtSecretario.getText());
+					
 					Enfermedad diagnostico = Clinica.getInstance().buscarEnfermedad(txtDiagnostico.getText());
+					if (diagnostico == null) {
+						diagnostico = new Enfermedad("0", "", "", false);
+					}
 					
 					
 					if(paciente == null || medico == null || secretario == null ||  txtDescripcion.getText().isEmpty()) {
@@ -293,6 +297,8 @@ public class RegConsulta extends JDialog {
 					
 					else {
 						Vacuna_Dosis vacuna_Dosis = new Vacuna_Dosis(Clinica.vacuna_dosis_id, Clinica.getCantMiligramos(), Clinica.getInstance().buscarVacuna(Clinica.getVacDosVacunaId()), txtConsultaCodigo.getText());
+						
+						
 						String asistenciaStr = (String) cbxAsistencia.getSelectedItem();
 						boolean asistencia = asistenciaStr.equalsIgnoreCase("Si");
 						Consulta nuevaConsulta = new Consulta(txtConsultaCodigo.getText(), paciente, medico, secretario, txtDescripcion.getText(), fechaOcurrida, diagnostico, txtTratamiento.getText(), vacuna_Dosis, asistencia);
@@ -312,8 +318,8 @@ public class RegConsulta extends JDialog {
 						System.out.println(fechaConsultaStr);
 						System.out.println(nuevaConsulta.getTratamiento());
 						System.out.println(nuevaConsulta.isAsistencia());
-						System.out.println(Integer.parseInt(nuevaConsulta.getDiagnostico().getId()));
-						System.out.println(nuevaConsulta.getVacuna_Dosis().getVacuna_dosis_id());
+						//System.out.println(Integer.parseInt(nuevaConsulta.getDiagnostico().getId()));
+						//System.out.println(nuevaConsulta.getVacuna_Dosis().getVacuna_dosis_id());
 						System.out.println(nuevaConsulta.getMedico().getId_medico());
 						Buscar_Datos_Test.createConsulta(nuevaConsulta.getDescripcion(), fechaConsultaStr, nuevaConsulta.getTratamiento(), nuevaConsulta.isAsistencia(), Integer.parseInt(nuevaConsulta.getDiagnostico().getId()), nuevaConsulta.getVacuna_Dosis().getVacuna_dosis_id(), nuevaConsulta.getMedico().getId_medico(), nuevaConsulta.getSecretario().getId_secretario(), nuevaConsulta.getPaciente().getIdPaciente());
 						

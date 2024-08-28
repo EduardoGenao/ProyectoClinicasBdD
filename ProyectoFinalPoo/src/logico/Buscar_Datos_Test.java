@@ -606,38 +606,51 @@ public class Buscar_Datos_Test {
 	
 
 	    // Function to insert a new consultation into the consulta table
-	    public static void createConsulta(String descripcion, String fechaConsulta, String tratamiento, boolean asistencia,
-	                                      int idEnfermedad, int idVacunaDosis, int idMedico, int idSecretario, int idPaciente) {
+	public static void createConsulta(String descripcion, String fechaConsulta, String tratamiento, boolean asistencia,
+            Integer idEnfermedad, Integer idVacunaDosis, int idMedico, int idSecretario, int idPaciente) {
 
-	        // Database connection details
+			// Database connection details
+			// Ensure connectionUrl is properly initialized
 
-	        // SQL Insert statement
-	        String sql = "INSERT INTO consulta (descripcion, fecha_consulta, tratamiento, asistencia, id_enfermedad, vacuna_dosis, id_medico, id_secretario, id_paciente) " +
-	                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	        
+			// SQL Insert statement
+			String sql = "INSERT INTO consulta (descripcion, fecha_consulta, tratamiento, asistencia, id_enfermedad, vacuna_dosis, id_medico, id_secretario, id_paciente) " +
+						"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-	        try (Connection conn = DriverManager.getConnection(connectionUrl);
-	             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				try (Connection conn = DriverManager.getConnection(connectionUrl);
+							PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-	            // Set parameters
-	            pstmt.setString(1, descripcion);
-	            pstmt.setTimestamp(2, java.sql.Timestamp.valueOf(fechaConsulta));
-	            pstmt.setString(3, tratamiento);
-	            pstmt.setBoolean(4, asistencia);
-	            pstmt.setInt(5, idEnfermedad);
-	            pstmt.setInt(6, idVacunaDosis);
-	            pstmt.setInt(7, idMedico);
-	            pstmt.setInt(8, idSecretario);
-	            pstmt.setInt(9, idPaciente);
+						// Set parameters
+						pstmt.setString(1, descripcion);
+							pstmt.setTimestamp(2, java.sql.Timestamp.valueOf(fechaConsulta));
+								pstmt.setString(3, tratamiento);
+									pstmt.setBoolean(4, asistencia);
 
-	            // Execute insert
-	            int rowsAffected = pstmt.executeUpdate();
-	            System.out.println("Rows inserted: " + rowsAffected);
+										// Set idEnfermedad or null
+										if (idEnfermedad == null) {
+												pstmt.setNull(5, java.sql.Types.INTEGER);
+										} else {
+											pstmt.setInt(5, idEnfermedad);
+										}
 
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	    }
+										// Set idVacunaDosis or null
+										if (idVacunaDosis == null) {
+											pstmt.setNull(6, java.sql.Types.INTEGER);
+										} else {
+											pstmt.setInt(6, idVacunaDosis);
+										}
+
+										pstmt.setInt(7, idMedico);
+										pstmt.setInt(8, idSecretario);
+										pstmt.setInt(9, idPaciente);
+
+										// Execute insert
+										int rowsAffected = pstmt.executeUpdate();
+										System.out.println("Rows inserted: " + rowsAffected);
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+	}
 
 	    
 	}
