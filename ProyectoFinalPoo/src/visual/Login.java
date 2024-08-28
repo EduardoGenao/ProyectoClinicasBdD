@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -25,7 +26,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.awt.event.ActionEvent;
 import javax.swing.border.TitledBorder;
-/*
+
+
+
+import java.awt.Color;
+import javax.swing.UIManager;
+import java.awt.Font;
+import java.awt.SystemColor;
+
+
 public class Login extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
@@ -88,6 +97,7 @@ public class Login extends JDialog {
 		contentPanel.setLayout(new BorderLayout(0, 0));
 		{
 			JPanel panel = new JPanel();
+			panel.setBackground(new Color(255, 228, 181));
 			panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 			contentPanel.add(panel, BorderLayout.CENTER);
 			panel.setLayout(null);
@@ -103,20 +113,36 @@ public class Login extends JDialog {
 			txtContrasena.setColumns(10);
 			
 			JLabel lblNewLabel = new JLabel("Usuario:");
-			lblNewLabel.setBounds(38, 55, 126, 14);
+			lblNewLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+			lblNewLabel.setBounds(38, 49, 126, 20);
 			panel.add(lblNewLabel);
 			
 			JLabel lblNewLabel_1 = new JLabel("Contrasena:");
-			lblNewLabel_1.setBounds(38, 123, 147, 14);
+			lblNewLabel_1.setFont(new Font("Serif", Font.PLAIN, 20));
+			lblNewLabel_1.setBounds(38, 117, 147, 20);
 			panel.add(lblNewLabel_1);
+			
+			//JLabel lblImagen = new JLabel("New label");
+			//ImageIcon image = new ImageIcon(getClass().getResource("/IconoPersona.png"));
+			//lblImagen.setIcon(image);
+			//lblImagen.setBounds(270, 11, 124, 160);
+			//panel.add(lblImagen);
+			
+			JLabel lblLogin = new JLabel("Login");
+			lblLogin.setFont(new Font("Segoe UI Black", Font.BOLD, 20));
+			lblLogin.setBounds(299, 171, 70, 23);
+			panel.add(lblLogin);
 		}
 		{
 			JPanel buttonPane = new JPanel();
+			buttonPane.setBackground(new Color(255, 250, 205));
 			buttonPane.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton btnLogin = new JButton("Login");
+				btnLogin.setFont(new Font("Segoe Print", Font.BOLD, 14));
+				btnLogin.setBackground(SystemColor.activeCaptionBorder);
 				btnLogin.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						if(Clinica.getInstance().confirmLogin(txtUsuario.getText(), txtContrasena.getText()) && txtUsuario.getText()!= "" && txtContrasena.getText()!="") {
@@ -132,6 +158,8 @@ public class Login extends JDialog {
 			}
 			{
 				JButton btnCancelar = new JButton("Cancelar");
+				btnCancelar.setBackground(SystemColor.activeCaptionBorder);
+				btnCancelar.setFont(new Font("Segoe Print", Font.BOLD, 14));
 				btnCancelar.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						dispose();
@@ -143,9 +171,9 @@ public class Login extends JDialog {
 		}
 	}
 }
-*/
 
 
+/*
 public class Login extends JDialog {
 
     private final JPanel contentPanel = new JPanel();
@@ -235,3 +263,4 @@ public class Login extends JDialog {
         }
     }
 }
+*/

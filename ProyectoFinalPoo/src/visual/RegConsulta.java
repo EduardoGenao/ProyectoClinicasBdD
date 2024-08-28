@@ -24,7 +24,9 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -283,9 +285,12 @@ public class RegConsulta extends JDialog {
 					Secretario secretario = Clinica.getInstance().buscarSecretario(txtSecretario.getText());
 					Enfermedad diagnostico = Clinica.getInstance().buscarEnfermedad(txtDiagnostico.getText());
 					
-					if(paciente == null || medico == null || txtDescripcion.getText().isEmpty()) {
+					
+					if(paciente == null || medico == null || secretario == null ||  txtDescripcion.getText().isEmpty()) {
 						JOptionPane.showMessageDialog(null, "Disculpe, parece que faltan algunos datos en la creacion de una nueva consulta.\n Por favor, llene los datos que faltan e intenta la creacion de nuevo.\n", "Datos Ausentes", JOptionPane.INFORMATION_MESSAGE);
 					}
+					
+					
 					else {
 						Vacuna_Dosis vacuna_Dosis = new Vacuna_Dosis(Clinica.vacuna_dosis_id, Clinica.getCantMiligramos(), Clinica.getInstance().buscarVacuna(Clinica.getVacDosVacunaId()), txtConsultaCodigo.getText());
 						String asistenciaStr = (String) cbxAsistencia.getSelectedItem();
@@ -417,39 +422,56 @@ public class RegConsulta extends JDialog {
 			}
 		}
 	
-	private void clean() {
-		txtConsultaCodigo.setText("Co-" + Clinica.getInstance().consultaCodigo);
-		txtPaciente.setText("");
-		txtCedMedico.setText("");
-		txtDescripcion.setText("");
-		txtDiagnostico.setText("");
-		txtTratamiento.setText("");
-		spnFecha.setValue(new Date());
-	}
+		private void clean() {
+		    txtConsultaCodigo.setText("Co-" + Clinica.getInstance().consultaCodigo);
+		    txtPaciente.setText("");
+		    txtCedMedico.setText("");
+		    txtDescripcion.setText("");
+		    txtDiagnostico.setText("");
+		    txtTratamiento.setText("");
+		    spnFecha.setValue(new Date());
+		    txtVacunaDosis.setText("");
+		    cbxAsistencia.setSelectedIndex(0);
+		    txtSecretario.setText("");
+		}
 	
+		public int getNextConsultaId() throws SQLException {
+		    String query = "SELECT ISNULL(MAX(id_consulta), 0) + 1 AS next_id FROM consulta";
+
+		    try (Connection connection = DriverManager.getConnection(connectionUrl);
+		         Statement statement = connection.createStatement();
+		         ResultSet resultSet = statement.executeQuery(query)) {
+
+		        if (resultSet.next()) {
+		            return resultSet.getInt("next_id");
+		        }
+		    }
+		    return -1;  // Return -1 if ID could not be retrieved
+		}
 	
-	private void insertVacunaDosisToDatabase(Vacuna_Dosis vacunaDosis) {
-	    // SQL INSERT statement to insert a new record into the vacuna_dosis table
-	    String insertSql = "INSERT INTO vacuna_dosis (vacuna_dosis_id, cant_miligramos, id_vacuna, id_consulta) VALUES (?, ?, ?, ?)";
+		public void insertVacunaDosisToDatabase(Vacuna_Dosis vacunaDosis) {
+		    try {
+		        int consultaId = getNextConsultaId();  // Get the next available id_consulta
+		        String insertSql = "INSERT INTO vacuna_dosis (vacuna_dosis_id, cant_miligramos, id_vacuna, id_consulta) VALUES (?, ?, ?, ?)";
 
-	    try (Connection connection = DriverManager.getConnection(connectionUrl);
-	         PreparedStatement preparedStatement = connection.prepareStatement(insertSql)) {
+		        try (Connection connection = DriverManager.getConnection(connectionUrl);
+		             PreparedStatement preparedStatement = connection.prepareStatement(insertSql)) {
 
-	        // Set parameters for the prepared statement
-	        preparedStatement.setInt(1, vacunaDosis.getVacuna_dosis_id()); // Assuming Vacuna_Dosis class has getVacunaDosisId() method
-	        preparedStatement.setInt(2, vacunaDosis.getCant_miligramos());
-	        preparedStatement.setInt(3, Integer.parseInt(vacunaDosis.getVacuna().getId_vacuna())); // Assuming Vacuna class has getIdVacuna() method
-	        preparedStatement.setInt(4, Integer.parseInt(vacunaDosis.getConsulta())); // Assuming Consulta class has getIdConsulta() method
+		            preparedStatement.setInt(1, vacunaDosis.getVacuna_dosis_id());
+		            preparedStatement.setInt(2, vacunaDosis.getCant_miligramos());
+		            preparedStatement.setInt(3, Integer.parseInt(vacunaDosis.getVacuna().getId_vacuna()));
+		            preparedStatement.setInt(4, consultaId);
 
-	        // Execute the insert statement
-	        int rowsAffected = preparedStatement.executeUpdate();
-	        if (rowsAffected > 0) {
-	            System.out.println("Vacuna_Dosis successfully inserted into the database.");
-	        } else {
-	            System.out.println("Failed to insert Vacuna_Dosis into the database.");
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	}
+		            int rowsAffected = preparedStatement.executeUpdate();
+		            if (rowsAffected > 0) {
+		                System.out.println("Vacuna_Dosis inserted successfully.");
+		            } else {
+		                System.out.println("Failed to insert Vacuna_Dosis.");
+		            }
+		        }
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		        JOptionPane.showMessageDialog(null, "Error inserting Vacuna_Dosis. Please try again.", "Database Error", JOptionPane.ERROR_MESSAGE);
+		    }
+		}
 }

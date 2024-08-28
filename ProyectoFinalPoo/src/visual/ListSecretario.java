@@ -279,8 +279,6 @@ public class ListSecretario extends JDialog {
     private static int seleccion;
     private JComboBox<String> cbxCondicion;
     static JLabel lblNewLabel_1;
-    JButton btnModificar;
-    JButton btnConsultaHistorial;
     JButton btnSeleccionar;
     private static Secretario seleccionado = null;
 
@@ -321,8 +319,6 @@ public class ListSecretario extends JDialog {
         		if (table.getSelectedRow() >= 0) {
 					int index = table.getSelectedRow();
 					if(index >= 0) {
-						btnModificar.setEnabled(true);
-						btnConsultaHistorial.setEnabled(true);
 						btnSeleccionar.setEnabled(true);
 						String cedula =  table.getValueAt(index, 2).toString();
 						System.out.println(cedula);
@@ -382,12 +378,6 @@ public class ListSecretario extends JDialog {
         });
 
         buttonPane.add(btnSeleccionar);
-        
-        btnConsultaHistorial = new JButton("Consulta Historial");
-        buttonPane.add(btnConsultaHistorial);
-        
-        btnModificar = new JButton("Modificar");
-        buttonPane.add(btnModificar);
         btnCancelar.setActionCommand("Cancel");
         buttonPane.add(btnCancelar);
 
@@ -417,7 +407,7 @@ public class ListSecretario extends JDialog {
             // Create the statement
             statement = connection.createStatement();
 
-            // Define the query to retrieve Secretario and Persona data
+            // Define the base query to retrieve Secretario and Persona data
             String query = "SELECT s.id_secretario, p.id_persona, p.nombre, p.apellido, p.fecha_de_nacimiento, " +
                            "p.direccion, p.sexo, p.telefono_personal, p.cedula, s.telefono_trabajo " +
                            "FROM secretario s " +
@@ -426,9 +416,9 @@ public class ListSecretario extends JDialog {
 
             // Adjust the query based on the selection
             if (seleccion == 1) {  // For "Hombres"
-                query += " WHERE p.sexo = 'M'";
+                query += " WHERE p.sexo = 'H'";
             } else if (seleccion == 2) {  // For "Mujeres"
-                query += " WHERE p.sexo = 'F'";
+                query += " WHERE p.sexo = 'M'";
             }
 
             // Execute the query
@@ -436,18 +426,18 @@ public class ListSecretario extends JDialog {
 
             // Process the results and populate the JTable
             while (resultSet.next()) {
-                fila[0] = resultSet.getInt("id_secretario");    // Secretario ID
-                fila[1] = resultSet.getInt("id_persona");       // Persona ID
-                fila[2] = resultSet.getString("cedula");        // Cedula from Persona
-                fila[3] = resultSet.getString("nombre");        // Nombre from Persona
-                fila[4] = resultSet.getString("apellido");      // Apellido from Persona
+                fila[0] = resultSet.getInt("id_persona");    // Persona ID
+                fila[1] = resultSet.getInt("id_secretario"); // Secretario ID
+                fila[2] = resultSet.getString("cedula");     // Cedula from Persona
+                fila[3] = resultSet.getString("nombre");     // Nombre from Persona
+                fila[4] = resultSet.getString("apellido");   // Apellido from Persona
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 String fechaNacimientoStr = dateFormat.format(resultSet.getDate("fecha_de_nacimiento"));
-                fila[5] = fechaNacimientoStr;                   // Fecha de Nacimiento from Persona
+                fila[5] = fechaNacimientoStr;                // Fecha de Nacimiento from Persona
                 
-                fila[6] = resultSet.getString("sexo");          // Sexo from Persona
-                fila[7] = resultSet.getString("direccion");     // Direccion from Persona
+                fila[6] = resultSet.getString("sexo");       // Sexo from Persona
+                fila[7] = resultSet.getString("direccion");  // Direccion from Persona
                 fila[8] = resultSet.getString("telefono_personal"); // Telefono Personal from Persona
                 fila[9] = resultSet.getString("telefono_trabajo");  // Telefono Trabajo from Secretario
 
@@ -472,8 +462,8 @@ public class ListSecretario extends JDialog {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.getTableHeader().setReorderingAllowed(false);
         TableColumnModel columnModel = table.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(80);  // Secretario ID
-        columnModel.getColumn(1).setPreferredWidth(80);  // Persona ID
+        columnModel.getColumn(0).setPreferredWidth(80);  // Persona ID
+        columnModel.getColumn(1).setPreferredWidth(80);  // Secretario ID
         columnModel.getColumn(2).setPreferredWidth(120); // Cedula
         columnModel.getColumn(3).setPreferredWidth(150); // Nombre
         columnModel.getColumn(4).setPreferredWidth(150); // Apellido
@@ -483,7 +473,7 @@ public class ListSecretario extends JDialog {
         columnModel.getColumn(8).setPreferredWidth(150); // Telefono Personal
         columnModel.getColumn(9).setPreferredWidth(150); // Telefono Trabajo
 
-        lblNewLabel_1.setText("Cantidad de Personas en Lista: " + modelo.getRowCount());
+        lblNewLabel_1.setText("Cantidad de Secretarios en Lista: " + modelo.getRowCount());
     }
 }
 

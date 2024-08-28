@@ -238,144 +238,68 @@ public class ListarPaciente extends JDialog {
 	}
 
 	public static void loadPacientes(int seleccion) {
-		modelo.setRowCount(0);
-		fila = new Object[modelo.getColumnCount()];
-		/*
-		try (Connection connection = DriverManager.getConnection(connectionUrl)) {
-		
-		String pacienteQuery = "SELECT * FROM paciente";
-        String personaQuery = "SELECT * FROM persona";
-		
-		Statement pacienteStatement = connection.createStatement();
-        Statement personaStatement = connection.createStatement();
-		
-		ResultSet pacienteResultSet = pacienteStatement.executeQuery(pacienteQuery);
-        ResultSet personaResultSet = personaStatement.executeQuery(personaQuery);
-        
-        
-        /*
-        switch (seleccion){
-        case 0:
-        	while (pacienteResultSet.next()) {
-                int idPaciente = pacienteResultSet.getInt("id_paciente");
-                String sangre = pacienteResultSet.getString("sangre");
-                String contactoEmergencia = pacienteResultSet.getString("contacto_emergencia");
-                int idPersona = pacienteResultSet.getInt("id_persona");
-                System.out.println("ID: " + idPaciente + ", Sangre: " + sangre + 
-                                   ", Contacto Emergencia: " + contactoEmergencia + 
-                                   ", ID Persona: " + idPersona);
-                fila[0] = idPaciente;
-                fila[1] = sangre;
-                fila[2] = contactoEmergencia;
-                fila[3] = idPersona;
-                modelo.addRow(fila);
-            }
-        	break;
-        default:
-        	break;
-        }
-		}
-        	catch (SQLException e) {
-                e.printStackTrace();
-            }
-		*/
-		
-		switch(seleccion){
-		case 0:
-			/*
-			while (pacienteResultSet.next()) {
-                fila[0] = pacienteResultSet.getInt("id_paciente");
-                fila[1] = pacienteResultSet.getString("sangre");
-                String contactoEmergencia = pacienteResultSet.getString("contacto_emergencia");
-                int idPersona = pacienteResultSet.getInt("id_persona");
-                System.out.println("ID: " + idPaciente + ", Sangre: " + sangre + 
-                                   ", Contacto Emergencia: " + contactoEmergencia + 
-                                   ", ID Persona: " + idPersona);
-            }
-			fila[0] = aux.getIdPaciente();
-			fila[1] = aux.getPersona().getNombre();
-			fila[2] = aux.getPersona().getSexo();
-			fila[3] = fechaNacimientoStr;
-			*/
-			for(Paciente aux : Clinica.getInstance().getMisPacientes()) {
-					fila[0] = aux.getIdPaciente();
-					fila[1] = aux.getPersona().getId_persona();
-					fila[2] = aux.getPersona().getCedula();
-					fila[3] = aux.getPersona().getNombre();
-					fila[4] = aux.getPersona().getApellido();
-					SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-					String fechaNacimientoStr = dateFormat.format(aux.getPersona().getFechaDeNacim());
-					fila[5] = fechaNacimientoStr;
-					fila[6] = aux.getPersona().getSexo();
-					fila[7] = aux.getSangre();
-					fila[8] = aux.getPersona().getDireccion();
-					fila[9] = aux.getPersona().getTelefono();
-					fila[10] = aux.getContacto_emergencia();
-					
-					modelo.addRow(fila);
-			}
-			break;
-		case 1: 
-			for(Paciente aux : Clinica.getInstance().getMisPacientes()) {
-				if (aux.getPersona().getSexo() == "H") {
-					fila[0] = aux.getIdPaciente();
-					fila[1] = aux.getPersona().getId_persona();
-					fila[2] = aux.getPersona().getCedula();
-					fila[3] = aux.getPersona().getNombre();
-					fila[4] = aux.getPersona().getApellido();
-					SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-					String fechaNacimientoStr = dateFormat.format(aux.getPersona().getFechaDeNacim());
-					fila[5] = fechaNacimientoStr;
-					fila[6] = aux.getPersona().getSexo();
-					fila[7] = aux.getSangre();
-					fila[8] = aux.getPersona().getDireccion();
-					fila[9] = aux.getPersona().getTelefono();
-					fila[10] = aux.getContacto_emergencia();
-					
-					modelo.addRow(fila);
-				}
-			}
-			break;
-		case 2:
-			for(Paciente aux : Clinica.getInstance().getMisPacientes()) {
-				if (aux.getPersona().getSexo() == "M") {
-					fila[0] = aux.getIdPaciente();
-					fila[1] = aux.getPersona().getId_persona();
-					fila[2] = aux.getPersona().getCedula();
-					fila[3] = aux.getPersona().getNombre();
-					fila[4] = aux.getPersona().getApellido();
-					SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-					String fechaNacimientoStr = dateFormat.format(aux.getPersona().getFechaDeNacim());
-					fila[5] = fechaNacimientoStr;
-					fila[6] = aux.getPersona().getSexo();
-					fila[7] = aux.getSangre();
-					fila[8] = aux.getPersona().getDireccion();
-					fila[9] = aux.getPersona().getTelefono();
-					fila[10] = aux.getContacto_emergencia();
-					
-					modelo.addRow(fila);
-				}
-			}
-			break;
-		default:
-			break;
-		}
-		
-		table.setModel(modelo);
-		TableColumnModel columnModel = table.getColumnModel();
-		columnModel.getColumn(0).setPreferredWidth(80);
-		columnModel.getColumn(1).setPreferredWidth(80);
-		columnModel.getColumn(2).setPreferredWidth(150);
-		columnModel.getColumn(3).setPreferredWidth(150);
-		columnModel.getColumn(4).setPreferredWidth(150);
-		columnModel.getColumn(5).setPreferredWidth(80);
-		columnModel.getColumn(6).setPreferredWidth(60);
-		columnModel.getColumn(7).setPreferredWidth(60);
-		columnModel.getColumn(8).setPreferredWidth(150);
-		columnModel.getColumn(9).setPreferredWidth(150);
-		columnModel.getColumn(10).setPreferredWidth(150);
-		//lblNewLabel_1.setText("Cantidad de Pacientes en Lista: " + Clinica.getInstance().cantPacientes(seleccion));
-		
+	    modelo.setRowCount(0);
+	    int cantidad = 0;
+	    fila = new Object[modelo.getColumnCount()];
+
+	    // Iterate over all patients and filter based on the selected condition
+	    for (Paciente aux : Clinica.getInstance().getMisPacientes()) {
+	        boolean addRow = false;
+	        switch (seleccion) {
+	            case 0: // Show all patients
+	                addRow = true;
+	                break;
+	            case 1: // Show male patients
+	                if ("H".equals(aux.getPersona().getSexo())) {
+	                    addRow = true;
+	                }
+	                break;
+	            case 2: // Show female patients
+	                if ("M".equals(aux.getPersona().getSexo())) {
+	                    addRow = true;
+	                }
+	                break;
+	            default:
+	                // Handle unexpected cases
+	                addRow = false;
+	                break;
+	        }
+
+	        if (addRow) {
+	            fila[0] = aux.getIdPaciente();
+	            fila[1] = aux.getPersona().getId_persona();
+	            fila[2] = aux.getPersona().getCedula();
+	            fila[3] = aux.getPersona().getNombre();
+	            fila[4] = aux.getPersona().getApellido();
+	            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	            String fechaNacimientoStr = dateFormat.format(aux.getPersona().getFechaDeNacim());
+	            fila[5] = fechaNacimientoStr;
+	            fila[6] = aux.getPersona().getSexo();
+	            fila[7] = aux.getSangre();
+	            fila[8] = aux.getPersona().getDireccion();
+	            fila[9] = aux.getPersona().getTelefono();
+	            fila[10] = aux.getContacto_emergencia();
+
+	            modelo.addRow(fila);
+	            cantidad++;
+	        }
+	    }
+
+	    table.setModel(modelo);
+	    TableColumnModel columnModel = table.getColumnModel();
+	    columnModel.getColumn(0).setPreferredWidth(80);
+	    columnModel.getColumn(1).setPreferredWidth(80);
+	    columnModel.getColumn(2).setPreferredWidth(150);
+	    columnModel.getColumn(3).setPreferredWidth(150);
+	    columnModel.getColumn(4).setPreferredWidth(150);
+	    columnModel.getColumn(5).setPreferredWidth(80);
+	    columnModel.getColumn(6).setPreferredWidth(60);
+	    columnModel.getColumn(7).setPreferredWidth(60);
+	    columnModel.getColumn(8).setPreferredWidth(150);
+	    columnModel.getColumn(9).setPreferredWidth(150);
+	    columnModel.getColumn(10).setPreferredWidth(150);
+
+	    lblNewLabel_1.setText("Cantidad de Pacientes en Lista: " + cantidad);
 	}
 }
 

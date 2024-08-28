@@ -358,8 +358,8 @@ public class Principal extends JFrame {
 		panel.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("");
-		ImageIcon image = new ImageIcon(getClass().getResource("/white_background_image.jpeg"));
-		lblNewLabel.setIcon(image);
+		//ImageIcon image = new ImageIcon(getClass().getResource("white_background_image.jpeg"));
+		//lblNewLabel.setIcon(image);
 		lblNewLabel.setBounds(0, 0, 1256, 606);
 		panel.add(lblNewLabel);
 		

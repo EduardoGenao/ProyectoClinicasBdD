@@ -40,7 +40,6 @@ public class ListConsultas extends JDialog {
 	private static DefaultTableModel modelo;
 	private static Object[] fila;
 	private static int seleccion;
-	JButton btnInfo;
 	private static Consulta seleccionado = null;
 	private static Paciente miPaciente = null;
 	private static Secretario miSecretario = null;
@@ -97,7 +96,7 @@ public class ListConsultas extends JDialog {
 							if (table.getSelectedRow() >= 0) {
 								int index = table.getSelectedRow();
 								//btnModificar.setEnabled(true);
-								btnInfo.setEnabled(true);
+								//btnInfo.setEnabled(true);
 								seleccionado = Clinica.getInstance().buscarConsulta(table.getValueAt(index, 0).toString());
 							}
 						}
@@ -115,31 +114,6 @@ public class ListConsultas extends JDialog {
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				btnInfo = new JButton("Mas Informacion");
-				btnInfo.setEnabled(false);
-				btnInfo.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						String diagnostico;
-						String vacuna;
-						if(seleccionado.getDiagnostico() == null) 
-							diagnostico = "N/A";
-						else
-							diagnostico = seleccionado.getDiagnostico().getNombre();
-						
-						if(seleccionado.getVacuna_Dosis() == null) 
-							vacuna = "N/A";
-						else
-							vacuna = seleccionado.getVacuna_Dosis().getVacuna().getNombre();
-						SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
-						String fechaOcurrida = dateFormat.format(seleccionado.getFechaConsulta());
-						JOptionPane.showMessageDialog(null, "Codigo: " + seleccionado.getId_consulta() + "\nPaciente Cedula: " + seleccionado.getPaciente().getPersona().getCedula() + "\nPaciente Nombre: " + seleccionado.getPaciente().getPersona().getNombre() + "\nMedico Cedula: " + seleccionado.getMedico().getPersona().getCedula() + "\nMedico Nombre: " + seleccionado.getMedico().getPersona().getNombre() + "\nDescripcion: " + seleccionado.getDescripcion() + "\nFecha: " + fechaOcurrida + "\nDiagnostico: " + diagnostico + "\nTratamiento: " + seleccionado.getTratamiento() + "\nVacuna: " + vacuna, "Datos de Consulta Seleccionada", JOptionPane.INFORMATION_MESSAGE);
-					}
-				});
-				btnInfo.setActionCommand("OK");
-				buttonPane.add(btnInfo);
-				getRootPane().setDefaultButton(btnInfo);
-			}
-			{
 				JButton btnCancelar = new JButton("Cancelar");
 				btnCancelar.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -153,36 +127,61 @@ public class ListConsultas extends JDialog {
 	}
 
 	public static void loadConsultas(int seleccion) {
-	    modelo.setRowCount(0);
-	    fila = new Object[modelo.getColumnCount()];
+	    modelo.setRowCount(0); // Clear the table
+	    fila = new Object[modelo.getColumnCount()]; // Create a new row
 
 	    // Your database connection details
 	    String connectionUrl = "jdbc:sqlserver://192.168.100.118:1433;"
-                + "database=clinica_stanley_eduardo;"
-                + "user=s.gomez;" //TU USER
-                + "password=Headphone1130Jack;" //TU CLAVE
-                + "encrypt=true;"
-                + "trustServerCertificate=true;"
-                + "loginTimeout=30;";
+	            + "database=clinica_stanley_eduardo;"
+	            + "user=s.gomez;" //TU USER
+	            + "password=Headphone1130Jack;" //TU CLAVE
+	            + "encrypt=true;"
+	            + "trustServerCertificate=true;"
+	            + "loginTimeout=30;";
 
 	    try (Connection connection = DriverManager.getConnection(connectionUrl)) {
-	        String sql = "SELECT c.id_consulta, p.nombre AS paciente_nombre, m.nombre AS medico_nombre, c.descripcion, c.fecha_consulta, "
-	                   + "e.nombre AS diagnostico_nombre, c.tratamiento, v.nombre AS vacuna_nombre "
-	                   + "FROM consulta c "
-	                   + "JOIN paciente pa ON c.id_paciente = pa.id_paciente "
-	                   + "JOIN persona p ON pa.id_persona = p.id_persona "
-	                   + "JOIN medico me ON c.id_medico = me.id_medico "
-	                   + "JOIN persona m ON me.id_persona = m.id_persona "
-	                   + "LEFT JOIN enfermedad e ON c.id_enfermedad = e.id_enfermedad "
-	                   + "LEFT JOIN vacuna_dosis vd ON c.id_vacuna_dosis = vd.id_vacuna_dosis "
-	                   + "LEFT JOIN vacuna v ON vd.id_vacuna = v.id_vacuna "
-	                   + "WHERE pa.id_paciente = ?"; // Filter by id_paciente or change to pa.id_persona if needed
+	        String sql;
+	        PreparedStatement pstmt;
 
-	        PreparedStatement pstmt = connection.prepareStatement(sql);
-	        pstmt.setInt(1, miPaciente.getIdPaciente()); // Set the paciente ID parameter
+	        // Check if miPaciente is null
+	        if (miPaciente != null) {
+	            // If a specific patient is selected, filter by their ID
+	            sql = "SELECT c.id_consulta, p.nombre AS paciente_nombre, m.nombre AS medico_nombre, c.descripcion, c.fecha_consulta, "
+	                + "ISNULL(e.nombre, 'N/A') AS diagnostico_nombre, "
+	                + "c.tratamiento, "
+	                + "ISNULL(v.nombre, 'N/A') AS vacuna_nombre " // Handle NULLs for vacuna_nombre
+	                + "FROM consulta c "
+	                + "JOIN paciente pa ON c.id_paciente = pa.id_paciente "
+	                + "JOIN persona p ON pa.id_persona = p.id_persona "
+	                + "JOIN medico me ON c.id_medico = me.id_medico "
+	                + "JOIN persona m ON me.id_persona = m.id_persona "
+	                + "LEFT JOIN enfermedad e ON c.id_enfermedad = e.id_enfermedad "
+	                + "LEFT JOIN vacuna_dosis vd ON c.vacuna_dosis = vd.id_vacuna_dosis "
+	                + "LEFT JOIN vacuna v ON vd.id_vacuna = v.id_vacuna "
+	                + "WHERE pa.id_paciente = ?";
+	            
+	            pstmt = connection.prepareStatement(sql);
+	            pstmt.setInt(1, miPaciente.getIdPaciente());
+
+	        } else {
+	            // If no specific patient is selected, retrieve all consultations
+	            sql = "SELECT c.id_consulta, p.nombre AS paciente_nombre, m.nombre AS medico_nombre, c.descripcion, c.fecha_consulta, "
+	                + "ISNULL(e.nombre, 'N/A') AS diagnostico_nombre, "
+	                + "c.tratamiento, "
+	                + "ISNULL(v.nombre, 'N/A') AS vacuna_nombre " // Handle NULLs for vacuna_nombre
+	                + "FROM consulta c "
+	                + "JOIN paciente pa ON c.id_paciente = pa.id_paciente "
+	                + "JOIN persona p ON pa.id_persona = p.id_persona "
+	                + "JOIN medico me ON c.id_medico = me.id_medico "
+	                + "JOIN persona m ON me.id_persona = m.id_persona "
+	                + "LEFT JOIN enfermedad e ON c.id_enfermedad = e.id_enfermedad "
+	                + "LEFT JOIN vacuna_dosis vd ON c.vacuna_dosis = vd.id_vacuna_dosis "
+	                + "LEFT JOIN vacuna v ON vd.id_vacuna = v.id_vacuna";
+	            
+	            pstmt = connection.prepareStatement(sql);
+	        }
 
 	        ResultSet rs = pstmt.executeQuery();
-
 	        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
 
 	        while (rs.next()) {
@@ -191,15 +190,16 @@ public class ListConsultas extends JDialog {
 	            fila[2] = rs.getString("medico_nombre");
 	            fila[3] = rs.getString("descripcion");
 	            fila[4] = dateFormat.format(rs.getTimestamp("fecha_consulta"));
-	            fila[5] = rs.getString("diagnostico_nombre") != null ? rs.getString("diagnostico_nombre") : "N/A";
+	            fila[5] = rs.getString("diagnostico_nombre");
 	            fila[6] = rs.getString("tratamiento");
-	            fila[7] = rs.getString("vacuna_nombre") != null ? rs.getString("vacuna_nombre") : "N/A";
+	            fila[7] = rs.getString("vacuna_nombre"); // This will be "N/A" if the original value was NULL
 
 	            modelo.addRow(fila);
 	        }
 
 	    } catch (SQLException e) {
 	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Database connection failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	    }
 
 	    table.setModel(modelo);

@@ -24,8 +24,6 @@ import java.awt.event.ActionEvent;
 public class ListMed extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
-	private JButton btnModi;
-	private JButton btnElim;
 	private JButton btnCancel;
 	private static JTable Tabla;
 	private Medico selected = null;
@@ -71,8 +69,8 @@ public class ListMed extends JDialog {
 					public void mouseClicked(MouseEvent e) {
 						int ind = Tabla.getSelectedRow();
 						if (ind >= 0) {
-							btnElim.setEnabled(true);
-							btnModi.setEnabled(true);
+							//btnElim.setEnabled(true);
+							//btnModi.setEnabled(true);
 							btnSeleccionar.setEnabled(true);
 							selected = Clinica.getInstance().buscarMedico(Tabla.getValueAt(ind,2).toString());
 							//String cedula = Tabla.getValueAt(ind, 0).toString();
@@ -97,17 +95,6 @@ public class ListMed extends JDialog {
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				btnModi = new JButton("Modificar Datos");
-				btnModi.setEnabled(false);
-				btnModi.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ModMed update = new ModMed(selected);
-						update.setModal(true);
-						update.setLocationRelativeTo(null);
-						update.setVisible(true);
-						loadMedicos();
-					}
-				});
 				{
 					btnSeleccionar = new JButton("Seleccionar Medico");
 					btnSeleccionar.setEnabled(false);
@@ -124,29 +111,6 @@ public class ListMed extends JDialog {
 					});
 					buttonPane.add(btnSeleccionar);
 				}
-				btnModi.setActionCommand("OK");
-				buttonPane.add(btnModi);
-				getRootPane().setDefaultButton(btnModi);
-			}
-			{
-				btnElim = new JButton("Eliminar");
-				btnElim.setEnabled(false);
-				btnElim.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						if(selected != null) {
-							int option = JOptionPane.showConfirmDialog(null,"Está Seguro(a) que desea eliminar este empleado?"+selected.getPersona().getNombre(), "Confirmación",JOptionPane.OK_CANCEL_OPTION);
-							if(option == JOptionPane.OK_OPTION) {
-								Clinica.getInstance().eliminarMedico(selected);
-								btnElim.setEnabled(false);
-								btnModi.setEnabled(false);
-								btnSeleccionar.setEnabled(false);
-								loadMedicos();
-							}
-						
-						}
-					}
-				});
-				buttonPane.add(btnElim);
 			}
 			{
 				btnCancel = new JButton("Cancelar");
